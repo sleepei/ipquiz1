@@ -1,0 +1,3504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Processing Practice Quiz</title>
+    <style>
+        :root {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f8f9fa;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --accent-color: #667eea;
+            --success-color: #48bb78;
+            --error-color: #f56565;
+            --success-bg: #c6f6d5;
+            --error-bg: #fed7d7;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --bg-tertiary: #374151;
+            --text-primary: #f7fafc;
+            --text-secondary: #e2e8f0;
+            --border-color: #4a5568;
+            --accent-color: #9f7aea;
+            --success-color: #68d391;
+            --error-color: #fc8181;
+            --success-bg: #2f855a;
+            --error-bg: #c53030;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            color: var(--accent-color);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--border-color);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch:hover {
+            background: var(--accent-color);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        [data-theme="dark"] .toggle-slider {
+            transform: translateX(30px);
+        }
+
+        .container {
+            display: flex;
+            max-width: 1600px;
+            margin: 0 auto;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .score-panel {
+            position: sticky;
+            top: 100px;
+            width: 280px;
+            height: fit-content;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .score-panel h2 {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score-percentage {
+            font-size: 3.5em;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .score-fraction {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            margin-top: 10px;
+        }
+
+        .score-stats {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            padding: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            font-weight: bold;
+        }
+
+        .stat-value.correct {
+            color: var(--success-color);
+        }
+
+        .stat-value.incorrect {
+            color: var(--error-color);
+        }
+
+        .quiz-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--accent-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .quiz-section h2 {
+            color: var(--accent-color);
+            margin-bottom: 25px;
+            font-size: 1.6em;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .question {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .question.correct {
+            border-color: var(--success-color);
+            background: var(--success-bg);
+        }
+
+        .question.incorrect {
+            border-color: var(--error-color);
+            background: var(--error-bg);
+        }
+
+        .question-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 1.05em;
+        }
+
+        .question-number {
+            background: var(--accent-color);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 50%;
+            margin-right: 15px;
+            min-width: 40px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .question-text {
+            line-height: 1.7;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            font-size: 1.05em;
+        }
+
+        .matrix {
+            display: inline-block;
+            border: 2px solid var(--text-primary);
+            padding: 12px;
+            margin: 15px 0;
+            background: var(--bg-secondary);
+            font-family: 'Courier New', monospace;
+            border-radius: 8px;
+        }
+
+        .matrix table {
+            border-collapse: collapse;
+        }
+
+        .matrix td {
+            padding: 10px 18px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            min-width: 55px;
+            font-weight: 600;
+        }
+
+        .formula {
+            background: var(--bg-secondary);
+            padding: 12px 15px;
+            margin: 12px 0;
+            border-left: 4px solid var(--accent-color);
+            font-family: 'Courier New', monospace;
+            border-radius: 5px;
+            font-size: 0.95em;
+            color: var(--text-secondary);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        input[type="number"], input[type="text"] {
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1em;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: border-color 0.3s;
+            width: 150px;
+        }
+
+        input[type="number"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .submit-btn {
+            padding: 12px 25px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .feedback {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feedback.show {
+            display: flex;
+        }
+
+        .feedback.correct {
+            background: var(--success-bg);
+            color: var(--text-primary);
+            border: 2px solid var(--success-color);
+        }
+
+        .feedback.incorrect {
+            background: var(--error-bg);
+            color: var(--text-primary);
+            border: 2px solid var(--error-color);
+        }
+
+        .feedback-icon {
+            font-size: 1.5em;
+        }
+
+        .correct-answer {
+            margin-top: 8px;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .score-panel {
+                position: relative;
+                width: 100%;
+                top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎓 Image Processing Practice Quiz</h1>
+        <div class="theme-toggle">
+            <span>☀️</span>
+            <div class="toggle-switch" onclick="toggleTheme()">
+                <div class="toggle-slider"></div>
+            </div>
+            <span>🌙</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-content">
+<div class="quiz-section">
+<h2>Image Fundamentals</h2>
+<div class="question" id="q1">
+<div class="question-header">
+<span class="question-number">1</span>
+<span>Question 1</span>
+</div>
+<div class="question-text">For the image matrix below, what is M (number of rows)?</div>
+<div class="matrix"><table><tr><td>66</td><td>110</td><td>180</td></tr><tr><td>52</td><td>131</td><td>88</td></tr><tr><td>124</td><td>165</td><td>103</td></tr><tr><td>187</td><td>141</td><td>149</td></tr><tr><td>117</td><td>80</td><td>63</td></tr></table></div><div class="formula">💡 M = number of rows</div>
+<div class="input-group">
+<input type="number" step="any" id="input1" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(1)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback1"></div>
+</div>
+<div class="question" id="q2">
+<div class="question-header">
+<span class="question-number">2</span>
+<span>Question 2</span>
+</div>
+<div class="question-text">For the image matrix below, what is N (number of columns)?</div>
+<div class="matrix"><table><tr><td>66</td><td>110</td><td>180</td></tr><tr><td>52</td><td>131</td><td>88</td></tr><tr><td>124</td><td>165</td><td>103</td></tr><tr><td>187</td><td>141</td><td>149</td></tr><tr><td>117</td><td>80</td><td>63</td></tr></table></div><div class="formula">💡 N = number of columns</div>
+<div class="input-group">
+<input type="number" step="any" id="input2" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(2)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback2"></div>
+</div>
+<div class="question" id="q3">
+<div class="question-header">
+<span class="question-number">3</span>
+<span>Question 3</span>
+</div>
+<div class="question-text">For the image matrix below, what is the pixel value at origin (0,0)?</div>
+<div class="matrix"><table><tr><td>66</td><td>110</td><td>180</td></tr><tr><td>52</td><td>131</td><td>88</td></tr><tr><td>124</td><td>165</td><td>103</td></tr><tr><td>187</td><td>141</td><td>149</td></tr><tr><td>117</td><td>80</td><td>63</td></tr></table></div><div class="formula">💡 Origin is at position (0,0)</div>
+<div class="input-group">
+<input type="number" step="any" id="input3" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(3)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback3"></div>
+</div>
+<div class="question" id="q4">
+<div class="question-header">
+<span class="question-number">4</span>
+<span>Question 4</span>
+</div>
+<div class="question-text">For the image matrix below, what is M (number of rows)?</div>
+<div class="matrix"><table><tr><td>61</td><td>187</td><td>95</td><td>159</td><td>62</td></tr><tr><td>129</td><td>128</td><td>98</td><td>119</td><td>128</td></tr><tr><td>118</td><td>94</td><td>64</td><td>85</td><td>169</td></tr><tr><td>119</td><td>151</td><td>73</td><td>148</td><td>182</td></tr><tr><td>93</td><td>192</td><td>87</td><td>51</td><td>158</td></tr></table></div><div class="formula">💡 M = number of rows</div>
+<div class="input-group">
+<input type="number" step="any" id="input4" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(4)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback4"></div>
+</div>
+<div class="question" id="q5">
+<div class="question-header">
+<span class="question-number">5</span>
+<span>Question 5</span>
+</div>
+<div class="question-text">For the image matrix below, what is N (number of columns)?</div>
+<div class="matrix"><table><tr><td>61</td><td>187</td><td>95</td><td>159</td><td>62</td></tr><tr><td>129</td><td>128</td><td>98</td><td>119</td><td>128</td></tr><tr><td>118</td><td>94</td><td>64</td><td>85</td><td>169</td></tr><tr><td>119</td><td>151</td><td>73</td><td>148</td><td>182</td></tr><tr><td>93</td><td>192</td><td>87</td><td>51</td><td>158</td></tr></table></div><div class="formula">💡 N = number of columns</div>
+<div class="input-group">
+<input type="number" step="any" id="input5" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(5)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback5"></div>
+</div>
+<div class="question" id="q6">
+<div class="question-header">
+<span class="question-number">6</span>
+<span>Question 6</span>
+</div>
+<div class="question-text">For the image matrix below, what is the pixel value at origin (0,0)?</div>
+<div class="matrix"><table><tr><td>61</td><td>187</td><td>95</td><td>159</td><td>62</td></tr><tr><td>129</td><td>128</td><td>98</td><td>119</td><td>128</td></tr><tr><td>118</td><td>94</td><td>64</td><td>85</td><td>169</td></tr><tr><td>119</td><td>151</td><td>73</td><td>148</td><td>182</td></tr><tr><td>93</td><td>192</td><td>87</td><td>51</td><td>158</td></tr></table></div><div class="formula">💡 Origin is at position (0,0)</div>
+<div class="input-group">
+<input type="number" step="any" id="input6" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(6)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback6"></div>
+</div>
+<div class="question" id="q7">
+<div class="question-header">
+<span class="question-number">7</span>
+<span>Question 7</span>
+</div>
+<div class="question-text">For the image matrix below, what is M (number of rows)?</div>
+<div class="matrix"><table><tr><td>89</td><td>131</td><td>125</td><td>194</td><td>71</td></tr><tr><td>60</td><td>105</td><td>108</td><td>114</td><td>112</td></tr><tr><td>194</td><td>199</td><td>75</td><td>117</td><td>176</td></tr></table></div><div class="formula">💡 M = number of rows</div>
+<div class="input-group">
+<input type="number" step="any" id="input7" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(7)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback7"></div>
+</div>
+<div class="question" id="q8">
+<div class="question-header">
+<span class="question-number">8</span>
+<span>Question 8</span>
+</div>
+<div class="question-text">For the image matrix below, what is N (number of columns)?</div>
+<div class="matrix"><table><tr><td>89</td><td>131</td><td>125</td><td>194</td><td>71</td></tr><tr><td>60</td><td>105</td><td>108</td><td>114</td><td>112</td></tr><tr><td>194</td><td>199</td><td>75</td><td>117</td><td>176</td></tr></table></div><div class="formula">💡 N = number of columns</div>
+<div class="input-group">
+<input type="number" step="any" id="input8" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(8)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback8"></div>
+</div>
+<div class="question" id="q9">
+<div class="question-header">
+<span class="question-number">9</span>
+<span>Question 9</span>
+</div>
+<div class="question-text">For the image matrix below, what is the pixel value at origin (0,0)?</div>
+<div class="matrix"><table><tr><td>89</td><td>131</td><td>125</td><td>194</td><td>71</td></tr><tr><td>60</td><td>105</td><td>108</td><td>114</td><td>112</td></tr><tr><td>194</td><td>199</td><td>75</td><td>117</td><td>176</td></tr></table></div><div class="formula">💡 Origin is at position (0,0)</div>
+<div class="input-group">
+<input type="number" step="any" id="input9" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(9)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback9"></div>
+</div>
+<div class="question" id="q10">
+<div class="question-header">
+<span class="question-number">10</span>
+<span>Question 10</span>
+</div>
+<div class="question-text">For the image matrix below, what is M (number of rows)?</div>
+<div class="matrix"><table><tr><td>193</td><td>147</td><td>198</td><td>58</td></tr><tr><td>167</td><td>180</td><td>106</td><td>53</td></tr><tr><td>139</td><td>190</td><td>69</td><td>190</td></tr></table></div><div class="formula">💡 M = number of rows</div>
+<div class="input-group">
+<input type="number" step="any" id="input10" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(10)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback10"></div>
+</div>
+<div class="question" id="q11">
+<div class="question-header">
+<span class="question-number">11</span>
+<span>Question 11</span>
+</div>
+<div class="question-text">For the image matrix below, what is N (number of columns)?</div>
+<div class="matrix"><table><tr><td>193</td><td>147</td><td>198</td><td>58</td></tr><tr><td>167</td><td>180</td><td>106</td><td>53</td></tr><tr><td>139</td><td>190</td><td>69</td><td>190</td></tr></table></div><div class="formula">💡 N = number of columns</div>
+<div class="input-group">
+<input type="number" step="any" id="input11" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(11)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback11"></div>
+</div>
+<div class="question" id="q12">
+<div class="question-header">
+<span class="question-number">12</span>
+<span>Question 12</span>
+</div>
+<div class="question-text">For the image matrix below, what is the pixel value at origin (0,0)?</div>
+<div class="matrix"><table><tr><td>193</td><td>147</td><td>198</td><td>58</td></tr><tr><td>167</td><td>180</td><td>106</td><td>53</td></tr><tr><td>139</td><td>190</td><td>69</td><td>190</td></tr></table></div><div class="formula">💡 Origin is at position (0,0)</div>
+<div class="input-group">
+<input type="number" step="any" id="input12" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(12)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback12"></div>
+</div>
+<div class="question" id="q13">
+<div class="question-header">
+<span class="question-number">13</span>
+<span>Question 13</span>
+</div>
+<div class="question-text">For the image matrix below, what is M (number of rows)?</div>
+<div class="matrix"><table><tr><td>145</td><td>200</td><td>63</td><td>136</td><td>196</td><td>128</td></tr><tr><td>72</td><td>185</td><td>170</td><td>93</td><td>124</td><td>144</td></tr><tr><td>79</td><td>152</td><td>190</td><td>59</td><td>58</td><td>170</td></tr><tr><td>109</td><td>101</td><td>160</td><td>163</td><td>53</td><td>112</td></tr><tr><td>179</td><td>156</td><td>172</td><td>131</td><td>152</td><td>60</td></tr><tr><td>191</td><td>117</td><td>100</td><td>150</td><td>97</td><td>165</td></tr></table></div><div class="formula">💡 M = number of rows</div>
+<div class="input-group">
+<input type="number" step="any" id="input13" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(13)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback13"></div>
+</div>
+<div class="question" id="q14">
+<div class="question-header">
+<span class="question-number">14</span>
+<span>Question 14</span>
+</div>
+<div class="question-text">For the image matrix below, what is N (number of columns)?</div>
+<div class="matrix"><table><tr><td>145</td><td>200</td><td>63</td><td>136</td><td>196</td><td>128</td></tr><tr><td>72</td><td>185</td><td>170</td><td>93</td><td>124</td><td>144</td></tr><tr><td>79</td><td>152</td><td>190</td><td>59</td><td>58</td><td>170</td></tr><tr><td>109</td><td>101</td><td>160</td><td>163</td><td>53</td><td>112</td></tr><tr><td>179</td><td>156</td><td>172</td><td>131</td><td>152</td><td>60</td></tr><tr><td>191</td><td>117</td><td>100</td><td>150</td><td>97</td><td>165</td></tr></table></div><div class="formula">💡 N = number of columns</div>
+<div class="input-group">
+<input type="number" step="any" id="input14" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(14)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback14"></div>
+</div>
+<div class="question" id="q15">
+<div class="question-header">
+<span class="question-number">15</span>
+<span>Question 15</span>
+</div>
+<div class="question-text">For the image matrix below, what is the pixel value at origin (0,0)?</div>
+<div class="matrix"><table><tr><td>145</td><td>200</td><td>63</td><td>136</td><td>196</td><td>128</td></tr><tr><td>72</td><td>185</td><td>170</td><td>93</td><td>124</td><td>144</td></tr><tr><td>79</td><td>152</td><td>190</td><td>59</td><td>58</td><td>170</td></tr><tr><td>109</td><td>101</td><td>160</td><td>163</td><td>53</td><td>112</td></tr><tr><td>179</td><td>156</td><td>172</td><td>131</td><td>152</td><td>60</td></tr><tr><td>191</td><td>117</td><td>100</td><td>150</td><td>97</td><td>165</td></tr></table></div><div class="formula">💡 Origin is at position (0,0)</div>
+<div class="input-group">
+<input type="number" step="any" id="input15" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(15)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback15"></div>
+</div>
+<div class="question" id="q16">
+<div class="question-header">
+<span class="question-number">16</span>
+<span>Question 16</span>
+</div>
+<div class="question-text">What is the pixel value at coordinate (4,3)?</div>
+<div class="matrix"><table><tr><td>12</td><td>17</td><td>13</td><td>10</td><td>4</td></tr><tr><td>9</td><td>13</td><td>7</td><td>14</td><td>15</td></tr><tr><td>0</td><td>0</td><td>1</td><td>16</td><td>17</td></tr><tr><td>11</td><td>12</td><td>5</td><td>2</td><td>11</td></tr><tr><td>12</td><td>8</td><td>10</td><td>13</td><td>7</td></tr></table></div><div class="formula">💡 Access row 4, column 3</div>
+<div class="input-group">
+<input type="number" step="any" id="input16" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(16)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback16"></div>
+</div>
+<div class="question" id="q17">
+<div class="question-header">
+<span class="question-number">17</span>
+<span>Question 17</span>
+</div>
+<div class="question-text">What is the pixel value at coordinate (2,3)?</div>
+<div class="matrix"><table><tr><td>6</td><td>7</td><td>8</td><td>0</td><td>20</td></tr><tr><td>8</td><td>10</td><td>3</td><td>9</td><td>2</td></tr><tr><td>20</td><td>17</td><td>10</td><td>10</td><td>5</td></tr><tr><td>13</td><td>12</td><td>13</td><td>6</td><td>12</td></tr><tr><td>3</td><td>8</td><td>18</td><td>2</td><td>16</td></tr></table></div><div class="formula">💡 Access row 2, column 3</div>
+<div class="input-group">
+<input type="number" step="any" id="input17" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(17)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback17"></div>
+</div>
+<div class="question" id="q18">
+<div class="question-header">
+<span class="question-number">18</span>
+<span>Question 18</span>
+</div>
+<div class="question-text">What is the pixel value at coordinate (2,3)?</div>
+<div class="matrix"><table><tr><td>13</td><td>3</td><td>4</td><td>3</td><td>4</td></tr><tr><td>13</td><td>14</td><td>14</td><td>17</td><td>6</td></tr><tr><td>7</td><td>13</td><td>9</td><td>2</td><td>7</td></tr><tr><td>11</td><td>1</td><td>1</td><td>17</td><td>12</td></tr><tr><td>11</td><td>12</td><td>18</td><td>10</td><td>16</td></tr></table></div><div class="formula">💡 Access row 2, column 3</div>
+<div class="input-group">
+<input type="number" step="any" id="input18" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(18)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback18"></div>
+</div>
+<div class="question" id="q19">
+<div class="question-header">
+<span class="question-number">19</span>
+<span>Question 19</span>
+</div>
+<div class="question-text">What is the total number of pixels in an image with 24 rows and 39 columns?</div>
+<div class="formula">💡 Formula: total = rows × cols</div>
+<div class="input-group">
+<input type="number" step="any" id="input19" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(19)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback19"></div>
+</div>
+<div class="question" id="q20">
+<div class="question-header">
+<span class="question-number">20</span>
+<span>Question 20</span>
+</div>
+<div class="question-text">What is the total number of pixels in an image with 48 rows and 37 columns?</div>
+<div class="formula">💡 Formula: total = rows × cols</div>
+<div class="input-group">
+<input type="number" step="any" id="input20" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(20)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback20"></div>
+</div>
+</div>
+<div class="quiz-section">
+<h2>Memory Calculations</h2>
+<div class="question" id="q21">
+<div class="question-header">
+<span class="question-number">21</span>
+<span>Question 21</span>
+</div>
+<div class="question-text">How many bytes for a binary image with 487 rows and 363 columns?</div>
+<div class="formula">💡 Formula: bytes = (rows × cols) / 8</div>
+<div class="input-group">
+<input type="number" step="any" id="input21" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(21)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback21"></div>
+</div>
+<div class="question" id="q22">
+<div class="question-header">
+<span class="question-number">22</span>
+<span>Question 22</span>
+</div>
+<div class="question-text">How many bytes for a binary image with 359 rows and 353 columns?</div>
+<div class="formula">💡 Formula: bytes = (rows × cols) / 8</div>
+<div class="input-group">
+<input type="number" step="any" id="input22" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(22)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback22"></div>
+</div>
+<div class="question" id="q23">
+<div class="question-header">
+<span class="question-number">23</span>
+<span>Question 23</span>
+</div>
+<div class="question-text">How many bytes for a binary image with 498 rows and 372 columns?</div>
+<div class="formula">💡 Formula: bytes = (rows × cols) / 8</div>
+<div class="input-group">
+<input type="number" step="any" id="input23" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(23)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback23"></div>
+</div>
+<div class="question" id="q24">
+<div class="question-header">
+<span class="question-number">24</span>
+<span>Question 24</span>
+</div>
+<div class="question-text">How many bytes for 8-bit greyscale image with 219 rows and 248 columns?</div>
+<div class="formula">💡 Formula: bytes = rows × cols</div>
+<div class="input-group">
+<input type="number" step="any" id="input24" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(24)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback24"></div>
+</div>
+<div class="question" id="q25">
+<div class="question-header">
+<span class="question-number">25</span>
+<span>Question 25</span>
+</div>
+<div class="question-text">How many bytes for 8-bit greyscale image with 397 rows and 314 columns?</div>
+<div class="formula">💡 Formula: bytes = rows × cols</div>
+<div class="input-group">
+<input type="number" step="any" id="input25" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(25)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback25"></div>
+</div>
+<div class="question" id="q26">
+<div class="question-header">
+<span class="question-number">26</span>
+<span>Question 26</span>
+</div>
+<div class="question-text">How many bytes for 8-bit greyscale image with 341 rows and 332 columns?</div>
+<div class="formula">💡 Formula: bytes = rows × cols</div>
+<div class="input-group">
+<input type="number" step="any" id="input26" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(26)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback26"></div>
+</div>
+<div class="question" id="q27">
+<div class="question-header">
+<span class="question-number">27</span>
+<span>Question 27</span>
+</div>
+<div class="question-text">How many bytes for RGB image with 92 rows and 129 columns?</div>
+<div class="formula">💡 Formula: bytes = rows × cols × 3</div>
+<div class="input-group">
+<input type="number" step="any" id="input27" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(27)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback27"></div>
+</div>
+<div class="question" id="q28">
+<div class="question-header">
+<span class="question-number">28</span>
+<span>Question 28</span>
+</div>
+<div class="question-text">How many bytes for RGB image with 148 rows and 118 columns?</div>
+<div class="formula">💡 Formula: bytes = rows × cols × 3</div>
+<div class="input-group">
+<input type="number" step="any" id="input28" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(28)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback28"></div>
+</div>
+<div class="question" id="q29">
+<div class="question-header">
+<span class="question-number">29</span>
+<span>Question 29</span>
+</div>
+<div class="question-text">How many bytes for RGB image with 99 rows and 126 columns?</div>
+<div class="formula">💡 Formula: bytes = rows × cols × 3</div>
+<div class="input-group">
+<input type="number" step="any" id="input29" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(29)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback29"></div>
+</div>
+<div class="question" id="q30">
+<div class="question-header">
+<span class="question-number">30</span>
+<span>Question 30</span>
+</div>
+<div class="question-text">How many bytes for indexed color image (336×349) with 100 colors in CLUT?</div>
+<div class="formula">💡 Formula: bytes = (rows × cols) + (colors × 3)</div>
+<div class="input-group">
+<input type="number" step="any" id="input30" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(30)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback30"></div>
+</div>
+<div class="question" id="q31">
+<div class="question-header">
+<span class="question-number">31</span>
+<span>Question 31</span>
+</div>
+<div class="question-text">How many bytes for indexed color image (393×323) with 163 colors in CLUT?</div>
+<div class="formula">💡 Formula: bytes = (rows × cols) + (colors × 3)</div>
+<div class="input-group">
+<input type="number" step="any" id="input31" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(31)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback31"></div>
+</div>
+<div class="question" id="q32">
+<div class="question-header">
+<span class="question-number">32</span>
+<span>Question 32</span>
+</div>
+<div class="question-text">How many bytes for indexed color image (205×240) with 176 colors in CLUT?</div>
+<div class="formula">💡 Formula: bytes = (rows × cols) + (colors × 3)</div>
+<div class="input-group">
+<input type="number" step="any" id="input32" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(32)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback32"></div>
+</div>
+<div class="question" id="q33">
+<div class="question-header">
+<span class="question-number">33</span>
+<span>Question 33</span>
+</div>
+<div class="question-text">How many shades of grey in a 14 bits-per-pixel image?</div>
+<div class="formula">💡 Formula: shades = 2^14</div>
+<div class="input-group">
+<input type="number" step="any" id="input33" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(33)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback33"></div>
+</div>
+<div class="question" id="q34">
+<div class="question-header">
+<span class="question-number">34</span>
+<span>Question 34</span>
+</div>
+<div class="question-text">How many shades of grey in a 11 bits-per-pixel image?</div>
+<div class="formula">💡 Formula: shades = 2^11</div>
+<div class="input-group">
+<input type="number" step="any" id="input34" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(34)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback34"></div>
+</div>
+<div class="question" id="q35">
+<div class="question-header">
+<span class="question-number">35</span>
+<span>Question 35</span>
+</div>
+<div class="question-text">How many shades of grey in a 18 bits-per-pixel image?</div>
+<div class="formula">💡 Formula: shades = 2^18</div>
+<div class="input-group">
+<input type="number" step="any" id="input35" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(35)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback35"></div>
+</div>
+</div>
+<div class="quiz-section">
+<h2>Distance Metrics</h2>
+<div class="question" id="q36">
+<div class="question-header">
+<span class="question-number">36</span>
+<span>Question 36</span>
+</div>
+<div class="question-text">City block distance between (60,95) and (286,225)?</div>
+<div class="formula">💡 Formula: |x2-x1| + |y2-y1|</div>
+<div class="input-group">
+<input type="number" step="any" id="input36" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(36)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback36"></div>
+</div>
+<div class="question" id="q37">
+<div class="question-header">
+<span class="question-number">37</span>
+<span>Question 37</span>
+</div>
+<div class="question-text">City block distance between (83,91) and (226,179)?</div>
+<div class="formula">💡 Formula: |x2-x1| + |y2-y1|</div>
+<div class="input-group">
+<input type="number" step="any" id="input37" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(37)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback37"></div>
+</div>
+<div class="question" id="q38">
+<div class="question-header">
+<span class="question-number">38</span>
+<span>Question 38</span>
+</div>
+<div class="question-text">City block distance between (93,74) and (210,290)?</div>
+<div class="formula">💡 Formula: |x2-x1| + |y2-y1|</div>
+<div class="input-group">
+<input type="number" step="any" id="input38" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(38)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback38"></div>
+</div>
+<div class="question" id="q39">
+<div class="question-header">
+<span class="question-number">39</span>
+<span>Question 39</span>
+</div>
+<div class="question-text">City block distance between (57,53) and (286,246)?</div>
+<div class="formula">💡 Formula: |x2-x1| + |y2-y1|</div>
+<div class="input-group">
+<input type="number" step="any" id="input39" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(39)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback39"></div>
+</div>
+<div class="question" id="q40">
+<div class="question-header">
+<span class="question-number">40</span>
+<span>Question 40</span>
+</div>
+<div class="question-text">City block distance between (77,80) and (164,297)?</div>
+<div class="formula">💡 Formula: |x2-x1| + |y2-y1|</div>
+<div class="input-group">
+<input type="number" step="any" id="input40" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(40)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback40"></div>
+</div>
+<div class="question" id="q41">
+<div class="question-header">
+<span class="question-number">41</span>
+<span>Question 41</span>
+</div>
+<div class="question-text">Chessboard distance between (62,197) and (95,83)?</div>
+<div class="formula">💡 Formula: max(|x2-x1|, |y2-y1|)</div>
+<div class="input-group">
+<input type="number" step="any" id="input41" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(41)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback41"></div>
+</div>
+<div class="question" id="q42">
+<div class="question-header">
+<span class="question-number">42</span>
+<span>Question 42</span>
+</div>
+<div class="question-text">Chessboard distance between (67,106) and (92,61)?</div>
+<div class="formula">💡 Formula: max(|x2-x1|, |y2-y1|)</div>
+<div class="input-group">
+<input type="number" step="any" id="input42" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(42)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback42"></div>
+</div>
+<div class="question" id="q43">
+<div class="question-header">
+<span class="question-number">43</span>
+<span>Question 43</span>
+</div>
+<div class="question-text">Chessboard distance between (91,106) and (78,56)?</div>
+<div class="formula">💡 Formula: max(|x2-x1|, |y2-y1|)</div>
+<div class="input-group">
+<input type="number" step="any" id="input43" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(43)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback43"></div>
+</div>
+<div class="question" id="q44">
+<div class="question-header">
+<span class="question-number">44</span>
+<span>Question 44</span>
+</div>
+<div class="question-text">Chessboard distance between (94,99) and (55,93)?</div>
+<div class="formula">💡 Formula: max(|x2-x1|, |y2-y1|)</div>
+<div class="input-group">
+<input type="number" step="any" id="input44" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(44)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback44"></div>
+</div>
+<div class="question" id="q45">
+<div class="question-header">
+<span class="question-number">45</span>
+<span>Question 45</span>
+</div>
+<div class="question-text">Chessboard distance between (65,143) and (97,99)?</div>
+<div class="formula">💡 Formula: max(|x2-x1|, |y2-y1|)</div>
+<div class="input-group">
+<input type="number" step="any" id="input45" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(45)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback45"></div>
+</div>
+<div class="question" id="q46">
+<div class="question-header">
+<span class="question-number">46</span>
+<span>Question 46</span>
+</div>
+<div class="question-text">Euclidean distance between (134,176) and (277,29)? (2 d.p.)</div>
+<div class="formula">💡 Formula: √((x2-x1)² + (y2-y1)²)</div>
+<div class="input-group">
+<input type="number" step="any" id="input46" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(46)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback46"></div>
+</div>
+<div class="question" id="q47">
+<div class="question-header">
+<span class="question-number">47</span>
+<span>Question 47</span>
+</div>
+<div class="question-text">Euclidean distance between (137,184) and (284,16)? (2 d.p.)</div>
+<div class="formula">💡 Formula: √((x2-x1)² + (y2-y1)²)</div>
+<div class="input-group">
+<input type="number" step="any" id="input47" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(47)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback47"></div>
+</div>
+<div class="question" id="q48">
+<div class="question-header">
+<span class="question-number">48</span>
+<span>Question 48</span>
+</div>
+<div class="question-text">Euclidean distance between (129,156) and (289,15)? (2 d.p.)</div>
+<div class="formula">💡 Formula: √((x2-x1)² + (y2-y1)²)</div>
+<div class="input-group">
+<input type="number" step="any" id="input48" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(48)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback48"></div>
+</div>
+<div class="question" id="q49">
+<div class="question-header">
+<span class="question-number">49</span>
+<span>Question 49</span>
+</div>
+<div class="question-text">Euclidean distance between (141,192) and (255,14)? (2 d.p.)</div>
+<div class="formula">💡 Formula: √((x2-x1)² + (y2-y1)²)</div>
+<div class="input-group">
+<input type="number" step="any" id="input49" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(49)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback49"></div>
+</div>
+<div class="question" id="q50">
+<div class="question-header">
+<span class="question-number">50</span>
+<span>Question 50</span>
+</div>
+<div class="question-text">Euclidean distance between (150,165) and (269,43)? (2 d.p.)</div>
+<div class="formula">💡 Formula: √((x2-x1)² + (y2-y1)²)</div>
+<div class="input-group">
+<input type="number" step="any" id="input50" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(50)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback50"></div>
+</div>
+</div>
+<div class="quiz-section">
+<h2>Brightness & Contrast</h2>
+<div class="question" id="q51">
+<div class="question-header">
+<span class="question-number">51</span>
+<span>Question 51</span>
+</div>
+<div class="question-text">Calculate arithmetic mean brightness (2 d.p.):</div>
+<div class="matrix"><table><tr><td>76</td><td>131</td><td>161</td></tr><tr><td>153</td><td>30</td><td>37</td></tr><tr><td>157</td><td>32</td><td>163</td></tr></table></div><div class="formula">💡 Formula: sum(pixels) / count</div>
+<div class="input-group">
+<input type="number" step="any" id="input51" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(51)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback51"></div>
+</div>
+<div class="question" id="q52">
+<div class="question-header">
+<span class="question-number">52</span>
+<span>Question 52</span>
+</div>
+<div class="question-text">Calculate arithmetic mean brightness (2 d.p.):</div>
+<div class="matrix"><table><tr><td>62</td><td>171</td><td>120</td></tr><tr><td>153</td><td>202</td><td>53</td></tr><tr><td>41</td><td>130</td><td>206</td></tr></table></div><div class="formula">💡 Formula: sum(pixels) / count</div>
+<div class="input-group">
+<input type="number" step="any" id="input52" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(52)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback52"></div>
+</div>
+<div class="question" id="q53">
+<div class="question-header">
+<span class="question-number">53</span>
+<span>Question 53</span>
+</div>
+<div class="question-text">Calculate arithmetic mean brightness (2 d.p.):</div>
+<div class="matrix"><table><tr><td>96</td><td>53</td><td>159</td></tr><tr><td>180</td><td>154</td><td>237</td></tr><tr><td>117</td><td>67</td><td>49</td></tr></table></div><div class="formula">💡 Formula: sum(pixels) / count</div>
+<div class="input-group">
+<input type="number" step="any" id="input53" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(53)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback53"></div>
+</div>
+<div class="question" id="q54">
+<div class="question-header">
+<span class="question-number">54</span>
+<span>Question 54</span>
+</div>
+<div class="question-text">Calculate arithmetic mean brightness (2 d.p.):</div>
+<div class="matrix"><table><tr><td>32</td><td>39</td><td>191</td></tr><tr><td>199</td><td>173</td><td>106</td></tr><tr><td>211</td><td>94</td><td>85</td></tr></table></div><div class="formula">💡 Formula: sum(pixels) / count</div>
+<div class="input-group">
+<input type="number" step="any" id="input54" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(54)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback54"></div>
+</div>
+<div class="question" id="q55">
+<div class="question-header">
+<span class="question-number">55</span>
+<span>Question 55</span>
+</div>
+<div class="question-text">Calculate arithmetic mean brightness (2 d.p.):</div>
+<div class="matrix"><table><tr><td>24</td><td>48</td><td>224</td></tr><tr><td>116</td><td>174</td><td>201</td></tr><tr><td>210</td><td>169</td><td>108</td></tr></table></div><div class="formula">💡 Formula: sum(pixels) / count</div>
+<div class="input-group">
+<input type="number" step="any" id="input55" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(55)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback55"></div>
+</div>
+<div class="question" id="q56">
+<div class="question-header">
+<span class="question-number">56</span>
+<span>Question 56</span>
+</div>
+<div class="question-text">Calculate contrast as range:</div>
+<div class="matrix"><table><tr><td>172</td><td>213</td><td>130</td><td>132</td></tr><tr><td>214</td><td>121</td><td>200</td><td>215</td></tr><tr><td>171</td><td>191</td><td>80</td><td>141</td></tr><tr><td>156</td><td>175</td><td>179</td><td>81</td></tr></table></div><div class="formula">💡 Formula: max - min</div>
+<div class="input-group">
+<input type="number" step="any" id="input56" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(56)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback56"></div>
+</div>
+<div class="question" id="q57">
+<div class="question-header">
+<span class="question-number">57</span>
+<span>Question 57</span>
+</div>
+<div class="question-text">Calculate contrast as range:</div>
+<div class="matrix"><table><tr><td>117</td><td>100</td><td>84</td><td>178</td></tr><tr><td>84</td><td>99</td><td>83</td><td>140</td></tr><tr><td>140</td><td>197</td><td>95</td><td>133</td></tr><tr><td>201</td><td>193</td><td>179</td><td>209</td></tr></table></div><div class="formula">💡 Formula: max - min</div>
+<div class="input-group">
+<input type="number" step="any" id="input57" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(57)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback57"></div>
+</div>
+<div class="question" id="q58">
+<div class="question-header">
+<span class="question-number">58</span>
+<span>Question 58</span>
+</div>
+<div class="question-text">Calculate contrast as range:</div>
+<div class="matrix"><table><tr><td>117</td><td>81</td><td>205</td><td>183</td></tr><tr><td>227</td><td>173</td><td>248</td><td>187</td></tr><tr><td>200</td><td>97</td><td>230</td><td>131</td></tr><tr><td>224</td><td>195</td><td>148</td><td>98</td></tr></table></div><div class="formula">💡 Formula: max - min</div>
+<div class="input-group">
+<input type="number" step="any" id="input58" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(58)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback58"></div>
+</div>
+<div class="question" id="q59">
+<div class="question-header">
+<span class="question-number">59</span>
+<span>Question 59</span>
+</div>
+<div class="question-text">Calculate contrast as range:</div>
+<div class="matrix"><table><tr><td>169</td><td>150</td><td>146</td><td>162</td></tr><tr><td>194</td><td>154</td><td>211</td><td>135</td></tr><tr><td>166</td><td>104</td><td>162</td><td>163</td></tr><tr><td>134</td><td>90</td><td>227</td><td>206</td></tr></table></div><div class="formula">💡 Formula: max - min</div>
+<div class="input-group">
+<input type="number" step="any" id="input59" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(59)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback59"></div>
+</div>
+<div class="question" id="q60">
+<div class="question-header">
+<span class="question-number">60</span>
+<span>Question 60</span>
+</div>
+<div class="question-text">Calculate contrast as range:</div>
+<div class="matrix"><table><tr><td>125</td><td>89</td><td>165</td><td>155</td></tr><tr><td>83</td><td>144</td><td>160</td><td>108</td></tr><tr><td>240</td><td>162</td><td>219</td><td>83</td></tr><tr><td>245</td><td>128</td><td>201</td><td>160</td></tr></table></div><div class="formula">💡 Formula: max - min</div>
+<div class="input-group">
+<input type="number" step="any" id="input60" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(60)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback60"></div>
+</div>
+<div class="question" id="q61">
+<div class="question-header">
+<span class="question-number">61</span>
+<span>Question 61</span>
+</div>
+<div class="question-text">Calculate normalized range (2 d.p.):</div>
+<div class="matrix"><table><tr><td>116</td><td>141</td><td>237</td><td>216</td></tr><tr><td>55</td><td>166</td><td>151</td><td>191</td></tr><tr><td>80</td><td>152</td><td>226</td><td>118</td></tr><tr><td>148</td><td>44</td><td>236</td><td>121</td></tr></table></div><div class="formula">💡 Formula: (max - min) / 255</div>
+<div class="input-group">
+<input type="number" step="any" id="input61" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(61)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback61"></div>
+</div>
+<div class="question" id="q62">
+<div class="question-header">
+<span class="question-number">62</span>
+<span>Question 62</span>
+</div>
+<div class="question-text">Calculate normalized range (2 d.p.):</div>
+<div class="matrix"><table><tr><td>197</td><td>222</td><td>242</td><td>58</td></tr><tr><td>184</td><td>210</td><td>144</td><td>53</td></tr><tr><td>126</td><td>194</td><td>161</td><td>229</td></tr><tr><td>131</td><td>152</td><td>64</td><td>105</td></tr></table></div><div class="formula">💡 Formula: (max - min) / 255</div>
+<div class="input-group">
+<input type="number" step="any" id="input62" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(62)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback62"></div>
+</div>
+<div class="question" id="q63">
+<div class="question-header">
+<span class="question-number">63</span>
+<span>Question 63</span>
+</div>
+<div class="question-text">Calculate normalized range (2 d.p.):</div>
+<div class="matrix"><table><tr><td>61</td><td>201</td><td>50</td><td>26</td></tr><tr><td>93</td><td>210</td><td>64</td><td>43</td></tr><tr><td>113</td><td>109</td><td>59</td><td>46</td></tr><tr><td>128</td><td>147</td><td>197</td><td>214</td></tr></table></div><div class="formula">💡 Formula: (max - min) / 255</div>
+<div class="input-group">
+<input type="number" step="any" id="input63" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(63)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback63"></div>
+</div>
+<div class="question" id="q64">
+<div class="question-header">
+<span class="question-number">64</span>
+<span>Question 64</span>
+</div>
+<div class="question-text">Calculate normalized range (2 d.p.):</div>
+<div class="matrix"><table><tr><td>110</td><td>91</td><td>40</td><td>176</td></tr><tr><td>235</td><td>216</td><td>215</td><td>106</td></tr><tr><td>199</td><td>55</td><td>46</td><td>175</td></tr><tr><td>188</td><td>145</td><td>61</td><td>125</td></tr></table></div><div class="formula">💡 Formula: (max - min) / 255</div>
+<div class="input-group">
+<input type="number" step="any" id="input64" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(64)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback64"></div>
+</div>
+<div class="question" id="q65">
+<div class="question-header">
+<span class="question-number">65</span>
+<span>Question 65</span>
+</div>
+<div class="question-text">Calculate normalized range (2 d.p.):</div>
+<div class="matrix"><table><tr><td>130</td><td>198</td><td>123</td><td>184</td></tr><tr><td>243</td><td>42</td><td>197</td><td>202</td></tr><tr><td>159</td><td>216</td><td>129</td><td>145</td></tr><tr><td>134</td><td>125</td><td>175</td><td>43</td></tr></table></div><div class="formula">💡 Formula: (max - min) / 255</div>
+<div class="input-group">
+<input type="number" step="any" id="input65" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(65)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback65"></div>
+</div>
+<div class="question" id="q66">
+<div class="question-header">
+<span class="question-number">66</span>
+<span>Question 66</span>
+</div>
+<div class="question-text">Calculate Michelson contrast (2 d.p.):</div>
+<div class="matrix"><table><tr><td>46</td><td>135</td><td>81</td><td>117</td></tr><tr><td>169</td><td>220</td><td>67</td><td>118</td></tr><tr><td>31</td><td>94</td><td>238</td><td>173</td></tr><tr><td>207</td><td>28</td><td>50</td><td>247</td></tr></table></div><div class="formula">💡 Formula: (max-min)/(max+min)</div>
+<div class="input-group">
+<input type="number" step="any" id="input66" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(66)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback66"></div>
+</div>
+<div class="question" id="q67">
+<div class="question-header">
+<span class="question-number">67</span>
+<span>Question 67</span>
+</div>
+<div class="question-text">Calculate Michelson contrast (2 d.p.):</div>
+<div class="matrix"><table><tr><td>77</td><td>213</td><td>250</td><td>195</td></tr><tr><td>108</td><td>216</td><td>119</td><td>145</td></tr><tr><td>114</td><td>124</td><td>201</td><td>199</td></tr><tr><td>219</td><td>76</td><td>220</td><td>19</td></tr></table></div><div class="formula">💡 Formula: (max-min)/(max+min)</div>
+<div class="input-group">
+<input type="number" step="any" id="input67" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(67)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback67"></div>
+</div>
+<div class="question" id="q68">
+<div class="question-header">
+<span class="question-number">68</span>
+<span>Question 68</span>
+</div>
+<div class="question-text">Calculate Michelson contrast (2 d.p.):</div>
+<div class="matrix"><table><tr><td>150</td><td>222</td><td>214</td><td>191</td></tr><tr><td>205</td><td>41</td><td>54</td><td>113</td></tr><tr><td>168</td><td>172</td><td>223</td><td>110</td></tr><tr><td>48</td><td>159</td><td>36</td><td>26</td></tr></table></div><div class="formula">💡 Formula: (max-min)/(max+min)</div>
+<div class="input-group">
+<input type="number" step="any" id="input68" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(68)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback68"></div>
+</div>
+<div class="question" id="q69">
+<div class="question-header">
+<span class="question-number">69</span>
+<span>Question 69</span>
+</div>
+<div class="question-text">Calculate Michelson contrast (2 d.p.):</div>
+<div class="matrix"><table><tr><td>194</td><td>34</td><td>178</td><td>44</td></tr><tr><td>171</td><td>142</td><td>170</td><td>57</td></tr><tr><td>180</td><td>42</td><td>75</td><td>244</td></tr><tr><td>91</td><td>112</td><td>45</td><td>66</td></tr></table></div><div class="formula">💡 Formula: (max-min)/(max+min)</div>
+<div class="input-group">
+<input type="number" step="any" id="input69" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(69)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback69"></div>
+</div>
+<div class="question" id="q70">
+<div class="question-header">
+<span class="question-number">70</span>
+<span>Question 70</span>
+</div>
+<div class="question-text">Calculate Michelson contrast (2 d.p.):</div>
+<div class="matrix"><table><tr><td>83</td><td>116</td><td>74</td><td>225</td></tr><tr><td>56</td><td>11</td><td>29</td><td>56</td></tr><tr><td>91</td><td>213</td><td>72</td><td>202</td></tr><tr><td>97</td><td>85</td><td>29</td><td>164</td></tr></table></div><div class="formula">💡 Formula: (max-min)/(max+min)</div>
+<div class="input-group">
+<input type="number" step="any" id="input70" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(70)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback70"></div>
+</div>
+</div>
+<div class="quiz-section">
+<h2>Color Conversion</h2>
+<div class="question" id="q71">
+<div class="question-header">
+<span class="question-number">71</span>
+<span>Question 71</span>
+</div>
+<div class="question-text">Convert RGB(19,124,212) to greyscale using lightness method:</div>
+<div class="formula">💡 Formula: (max + min) / 2</div>
+<div class="input-group">
+<input type="number" step="any" id="input71" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(71)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback71"></div>
+</div>
+<div class="question" id="q72">
+<div class="question-header">
+<span class="question-number">72</span>
+<span>Question 72</span>
+</div>
+<div class="question-text">Convert RGB(50,110,234) to greyscale using lightness method:</div>
+<div class="formula">💡 Formula: (max + min) / 2</div>
+<div class="input-group">
+<input type="number" step="any" id="input72" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(72)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback72"></div>
+</div>
+<div class="question" id="q73">
+<div class="question-header">
+<span class="question-number">73</span>
+<span>Question 73</span>
+</div>
+<div class="question-text">Convert RGB(54,115,217) to greyscale using lightness method:</div>
+<div class="formula">💡 Formula: (max + min) / 2</div>
+<div class="input-group">
+<input type="number" step="any" id="input73" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(73)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback73"></div>
+</div>
+<div class="question" id="q74">
+<div class="question-header">
+<span class="question-number">74</span>
+<span>Question 74</span>
+</div>
+<div class="question-text">Convert RGB(98,122,212) to greyscale using lightness method:</div>
+<div class="formula">💡 Formula: (max + min) / 2</div>
+<div class="input-group">
+<input type="number" step="any" id="input74" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(74)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback74"></div>
+</div>
+<div class="question" id="q75">
+<div class="question-header">
+<span class="question-number">75</span>
+<span>Question 75</span>
+</div>
+<div class="question-text">Convert RGB(96,139,235) to greyscale using lightness method:</div>
+<div class="formula">💡 Formula: (max + min) / 2</div>
+<div class="input-group">
+<input type="number" step="any" id="input75" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(75)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback75"></div>
+</div>
+<div class="question" id="q76">
+<div class="question-header">
+<span class="question-number">76</span>
+<span>Question 76</span>
+</div>
+<div class="question-text">Convert RGB(45,78,38) to greyscale using average method:</div>
+<div class="formula">💡 Formula: (R + G + B) / 3</div>
+<div class="input-group">
+<input type="number" step="any" id="input76" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(76)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback76"></div>
+</div>
+<div class="question" id="q77">
+<div class="question-header">
+<span class="question-number">77</span>
+<span>Question 77</span>
+</div>
+<div class="question-text">Convert RGB(56,62,52) to greyscale using average method:</div>
+<div class="formula">💡 Formula: (R + G + B) / 3</div>
+<div class="input-group">
+<input type="number" step="any" id="input77" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(77)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback77"></div>
+</div>
+<div class="question" id="q78">
+<div class="question-header">
+<span class="question-number">78</span>
+<span>Question 78</span>
+</div>
+<div class="question-text">Convert RGB(78,59,58) to greyscale using average method:</div>
+<div class="formula">💡 Formula: (R + G + B) / 3</div>
+<div class="input-group">
+<input type="number" step="any" id="input78" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(78)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback78"></div>
+</div>
+<div class="question" id="q79">
+<div class="question-header">
+<span class="question-number">79</span>
+<span>Question 79</span>
+</div>
+<div class="question-text">Convert RGB(40,69,36) to greyscale using average method:</div>
+<div class="formula">💡 Formula: (R + G + B) / 3</div>
+<div class="input-group">
+<input type="number" step="any" id="input79" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(79)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback79"></div>
+</div>
+<div class="question" id="q80">
+<div class="question-header">
+<span class="question-number">80</span>
+<span>Question 80</span>
+</div>
+<div class="question-text">Convert RGB(55,54,64) to greyscale using average method:</div>
+<div class="formula">💡 Formula: (R + G + B) / 3</div>
+<div class="input-group">
+<input type="number" step="any" id="input80" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(80)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback80"></div>
+</div>
+<div class="question" id="q81">
+<div class="question-header">
+<span class="question-number">81</span>
+<span>Question 81</span>
+</div>
+<div class="question-text">Convert RGB(100,120,200) to greyscale using luminosity method:</div>
+<div class="formula">💡 Formula: 0.299R + 0.587G + 0.114B</div>
+<div class="input-group">
+<input type="number" step="any" id="input81" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(81)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback81"></div>
+</div>
+<div class="question" id="q82">
+<div class="question-header">
+<span class="question-number">82</span>
+<span>Question 82</span>
+</div>
+<div class="question-text">Convert RGB(46,141,226) to greyscale using luminosity method:</div>
+<div class="formula">💡 Formula: 0.299R + 0.587G + 0.114B</div>
+<div class="input-group">
+<input type="number" step="any" id="input82" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(82)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback82"></div>
+</div>
+<div class="question" id="q83">
+<div class="question-header">
+<span class="question-number">83</span>
+<span>Question 83</span>
+</div>
+<div class="question-text">Convert RGB(97,134,213) to greyscale using luminosity method:</div>
+<div class="formula">💡 Formula: 0.299R + 0.587G + 0.114B</div>
+<div class="input-group">
+<input type="number" step="any" id="input83" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(83)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback83"></div>
+</div>
+<div class="question" id="q84">
+<div class="question-header">
+<span class="question-number">84</span>
+<span>Question 84</span>
+</div>
+<div class="question-text">Convert RGB(92,103,202) to greyscale using luminosity method:</div>
+<div class="formula">💡 Formula: 0.299R + 0.587G + 0.114B</div>
+<div class="input-group">
+<input type="number" step="any" id="input84" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(84)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback84"></div>
+</div>
+<div class="question" id="q85">
+<div class="question-header">
+<span class="question-number">85</span>
+<span>Question 85</span>
+</div>
+<div class="question-text">Convert RGB(60,108,218) to greyscale using luminosity method:</div>
+<div class="formula">💡 Formula: 0.299R + 0.587G + 0.114B</div>
+<div class="input-group">
+<input type="number" step="any" id="input85" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(85)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback85"></div>
+</div>
+<div class="question" id="q86">
+<div class="question-header">
+<span class="question-number">86</span>
+<span>Question 86</span>
+</div>
+<div class="question-text">Convert RGB(68,111,208) to greyscale using luminosity method:</div>
+<div class="formula">💡 Formula: 0.299R + 0.587G + 0.114B</div>
+<div class="input-group">
+<input type="number" step="any" id="input86" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(86)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback86"></div>
+</div>
+<div class="question" id="q87">
+<div class="question-header">
+<span class="question-number">87</span>
+<span>Question 87</span>
+</div>
+<div class="question-text">Convert RGB(73,139,220) to greyscale using luminosity method:</div>
+<div class="formula">💡 Formula: 0.299R + 0.587G + 0.114B</div>
+<div class="input-group">
+<input type="number" step="any" id="input87" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(87)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback87"></div>
+</div>
+<div class="question" id="q88">
+<div class="question-header">
+<span class="question-number">88</span>
+<span>Question 88</span>
+</div>
+<div class="question-text">Convert RGB(48,140,218) to greyscale using luminosity method:</div>
+<div class="formula">💡 Formula: 0.299R + 0.587G + 0.114B</div>
+<div class="input-group">
+<input type="number" step="any" id="input88" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(88)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback88"></div>
+</div>
+<div class="question" id="q89">
+<div class="question-header">
+<span class="question-number">89</span>
+<span>Question 89</span>
+</div>
+<div class="question-text">Convert RGB(98,134,207) to greyscale using luminosity method:</div>
+<div class="formula">💡 Formula: 0.299R + 0.587G + 0.114B</div>
+<div class="input-group">
+<input type="number" step="any" id="input89" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(89)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback89"></div>
+</div>
+<div class="question" id="q90">
+<div class="question-header">
+<span class="question-number">90</span>
+<span>Question 90</span>
+</div>
+<div class="question-text">Convert RGB(81,123,223) to greyscale using luminosity method:</div>
+<div class="formula">💡 Formula: 0.299R + 0.587G + 0.114B</div>
+<div class="input-group">
+<input type="number" step="any" id="input90" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(90)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback90"></div>
+</div>
+</div>
+<div class="quiz-section">
+<h2>Thresholding</h2>
+<div class="question" id="q91">
+<div class="question-header">
+<span class="question-number">91</span>
+<span>Question 91</span>
+</div>
+<div class="question-text">Apply threshold 150 (output 1 if pixel > 150, else 0). What is output at (2,2)?</div>
+<div class="matrix"><table><tr><td>83</td><td>92</td><td>71</td></tr><tr><td>181</td><td>70</td><td>127</td></tr><tr><td>155</td><td>123</td><td>62</td></tr></table></div><div class="formula">💡 High-pass: if pixel > threshold: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input91" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(91)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback91"></div>
+</div>
+<div class="question" id="q92">
+<div class="question-header">
+<span class="question-number">92</span>
+<span>Question 92</span>
+</div>
+<div class="question-text">Apply threshold 150 (output 1 if pixel > 150, else 0). What is output at (2,0)?</div>
+<div class="matrix"><table><tr><td>51</td><td>78</td><td>84</td></tr><tr><td>67</td><td>76</td><td>138</td></tr><tr><td>91</td><td>144</td><td>178</td></tr></table></div><div class="formula">💡 High-pass: if pixel > threshold: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input92" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(92)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback92"></div>
+</div>
+<div class="question" id="q93">
+<div class="question-header">
+<span class="question-number">93</span>
+<span>Question 93</span>
+</div>
+<div class="question-text">Apply threshold 100 (output 1 if pixel > 100, else 0). What is output at (2,1)?</div>
+<div class="matrix"><table><tr><td>103</td><td>138</td><td>111</td></tr><tr><td>151</td><td>168</td><td>114</td></tr><tr><td>200</td><td>63</td><td>143</td></tr></table></div><div class="formula">💡 High-pass: if pixel > threshold: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input93" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(93)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback93"></div>
+</div>
+<div class="question" id="q94">
+<div class="question-header">
+<span class="question-number">94</span>
+<span>Question 94</span>
+</div>
+<div class="question-text">Apply threshold 128 (output 1 if pixel > 128, else 0). What is output at (1,2)?</div>
+<div class="matrix"><table><tr><td>75</td><td>92</td><td>86</td></tr><tr><td>134</td><td>105</td><td>132</td></tr><tr><td>126</td><td>196</td><td>116</td></tr></table></div><div class="formula">💡 High-pass: if pixel > threshold: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input94" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(94)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback94"></div>
+</div>
+<div class="question" id="q95">
+<div class="question-header">
+<span class="question-number">95</span>
+<span>Question 95</span>
+</div>
+<div class="question-text">Apply threshold 150 (output 1 if pixel > 150, else 0). What is output at (2,1)?</div>
+<div class="matrix"><table><tr><td>187</td><td>135</td><td>79</td></tr><tr><td>136</td><td>81</td><td>190</td></tr><tr><td>51</td><td>135</td><td>52</td></tr></table></div><div class="formula">💡 High-pass: if pixel > threshold: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input95" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(95)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback95"></div>
+</div>
+<div class="question" id="q96">
+<div class="question-header">
+<span class="question-number">96</span>
+<span>Question 96</span>
+</div>
+<div class="question-text">Apply low-pass threshold 100 (output 1 if pixel ≤ 100). What is output at (0,2)?</div>
+<div class="matrix"><table><tr><td>144</td><td>164</td><td>60</td></tr><tr><td>97</td><td>78</td><td>60</td></tr><tr><td>123</td><td>153</td><td>56</td></tr></table></div><div class="formula">💡 Low-pass: if pixel <= threshold: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input96" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(96)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback96"></div>
+</div>
+<div class="question" id="q97">
+<div class="question-header">
+<span class="question-number">97</span>
+<span>Question 97</span>
+</div>
+<div class="question-text">Apply low-pass threshold 128 (output 1 if pixel ≤ 128). What is output at (2,2)?</div>
+<div class="matrix"><table><tr><td>101</td><td>118</td><td>194</td></tr><tr><td>158</td><td>94</td><td>196</td></tr><tr><td>137</td><td>198</td><td>169</td></tr></table></div><div class="formula">💡 Low-pass: if pixel <= threshold: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input97" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(97)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback97"></div>
+</div>
+<div class="question" id="q98">
+<div class="question-header">
+<span class="question-number">98</span>
+<span>Question 98</span>
+</div>
+<div class="question-text">Apply low-pass threshold 150 (output 1 if pixel ≤ 150). What is output at (0,1)?</div>
+<div class="matrix"><table><tr><td>123</td><td>190</td><td>88</td></tr><tr><td>131</td><td>66</td><td>156</td></tr><tr><td>98</td><td>77</td><td>174</td></tr></table></div><div class="formula">💡 Low-pass: if pixel <= threshold: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input98" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(98)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback98"></div>
+</div>
+<div class="question" id="q99">
+<div class="question-header">
+<span class="question-number">99</span>
+<span>Question 99</span>
+</div>
+<div class="question-text">Apply low-pass threshold 100 (output 1 if pixel ≤ 100). What is output at (2,0)?</div>
+<div class="matrix"><table><tr><td>56</td><td>135</td><td>149</td></tr><tr><td>58</td><td>119</td><td>160</td></tr><tr><td>56</td><td>136</td><td>99</td></tr></table></div><div class="formula">💡 Low-pass: if pixel <= threshold: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input99" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(99)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback99"></div>
+</div>
+<div class="question" id="q100">
+<div class="question-header">
+<span class="question-number">100</span>
+<span>Question 100</span>
+</div>
+<div class="question-text">Apply low-pass threshold 150 (output 1 if pixel ≤ 150). What is output at (2,0)?</div>
+<div class="matrix"><table><tr><td>142</td><td>133</td><td>197</td></tr><tr><td>119</td><td>179</td><td>137</td></tr><tr><td>76</td><td>106</td><td>52</td></tr></table></div><div class="formula">💡 Low-pass: if pixel <= threshold: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input100" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(100)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback100"></div>
+</div>
+<div class="question" id="q101">
+<div class="question-header">
+<span class="question-number">101</span>
+<span>Question 101</span>
+</div>
+<div class="question-text">Apply band-pass threshold (100 < pixel < 200). What is output at (1,1)?</div>
+<div class="matrix"><table><tr><td>63</td><td>52</td><td>78</td></tr><tr><td>217</td><td>74</td><td>100</td></tr><tr><td>145</td><td>217</td><td>236</td></tr></table></div><div class="formula">💡 Band-pass: if 100 < pixel < 200: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input101" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(101)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback101"></div>
+</div>
+<div class="question" id="q102">
+<div class="question-header">
+<span class="question-number">102</span>
+<span>Question 102</span>
+</div>
+<div class="question-text">Apply band-pass threshold (100 < pixel < 200). What is output at (1,0)?</div>
+<div class="matrix"><table><tr><td>201</td><td>183</td><td>91</td></tr><tr><td>93</td><td>141</td><td>62</td></tr><tr><td>132</td><td>219</td><td>59</td></tr></table></div><div class="formula">💡 Band-pass: if 100 < pixel < 200: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input102" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(102)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback102"></div>
+</div>
+<div class="question" id="q103">
+<div class="question-header">
+<span class="question-number">103</span>
+<span>Question 103</span>
+</div>
+<div class="question-text">Apply band-pass threshold (100 < pixel < 200). What is output at (2,1)?</div>
+<div class="matrix"><table><tr><td>118</td><td>180</td><td>61</td></tr><tr><td>150</td><td>212</td><td>137</td></tr><tr><td>135</td><td>183</td><td>167</td></tr></table></div><div class="formula">💡 Band-pass: if 100 < pixel < 200: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input103" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(103)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback103"></div>
+</div>
+<div class="question" id="q104">
+<div class="question-header">
+<span class="question-number">104</span>
+<span>Question 104</span>
+</div>
+<div class="question-text">Apply band-pass threshold (100 < pixel < 200). What is output at (2,1)?</div>
+<div class="matrix"><table><tr><td>52</td><td>213</td><td>235</td></tr><tr><td>174</td><td>63</td><td>106</td></tr><tr><td>67</td><td>91</td><td>191</td></tr></table></div><div class="formula">💡 Band-pass: if 100 < pixel < 200: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input104" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(104)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback104"></div>
+</div>
+<div class="question" id="q105">
+<div class="question-header">
+<span class="question-number">105</span>
+<span>Question 105</span>
+</div>
+<div class="question-text">Apply band-pass threshold (100 < pixel < 200). What is output at (2,2)?</div>
+<div class="matrix"><table><tr><td>160</td><td>213</td><td>87</td></tr><tr><td>149</td><td>100</td><td>230</td></tr><tr><td>232</td><td>191</td><td>86</td></tr></table></div><div class="formula">💡 Band-pass: if 100 < pixel < 200: 1, else: 0</div>
+<div class="input-group">
+<input type="number" step="any" id="input105" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(105)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback105"></div>
+</div>
+</div>
+<div class="quiz-section">
+<h2>Image Arithmetic</h2>
+<div class="question" id="q106">
+<div class="question-header">
+<span class="question-number">106</span>
+<span>Question 106</span>
+</div>
+<div class="question-text">Add scalar 24 to matrix. What is output at (2,2)? (clip to 0-255)</div>
+<div class="matrix"><table><tr><td>82</td><td>159</td><td>181</td></tr><tr><td>160</td><td>131</td><td>169</td></tr><tr><td>73</td><td>63</td><td>159</td></tr></table></div><div class="formula">💡 Formula: L' = L + 24, clipped to [0,255]</div>
+<div class="input-group">
+<input type="number" step="any" id="input106" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(106)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback106"></div>
+</div>
+<div class="question" id="q107">
+<div class="question-header">
+<span class="question-number">107</span>
+<span>Question 107</span>
+</div>
+<div class="question-text">Add scalar 21 to matrix. What is output at (1,1)? (clip to 0-255)</div>
+<div class="matrix"><table><tr><td>153</td><td>168</td><td>190</td></tr><tr><td>185</td><td>185</td><td>164</td></tr><tr><td>183</td><td>145</td><td>171</td></tr></table></div><div class="formula">💡 Formula: L' = L + 21, clipped to [0,255]</div>
+<div class="input-group">
+<input type="number" step="any" id="input107" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(107)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback107"></div>
+</div>
+<div class="question" id="q108">
+<div class="question-header">
+<span class="question-number">108</span>
+<span>Question 108</span>
+</div>
+<div class="question-text">Add scalar 31 to matrix. What is output at (0,2)? (clip to 0-255)</div>
+<div class="matrix"><table><tr><td>137</td><td>75</td><td>171</td></tr><tr><td>104</td><td>195</td><td>104</td></tr><tr><td>98</td><td>139</td><td>52</td></tr></table></div><div class="formula">💡 Formula: L' = L + 31, clipped to [0,255]</div>
+<div class="input-group">
+<input type="number" step="any" id="input108" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(108)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback108"></div>
+</div>
+<div class="question" id="q109">
+<div class="question-header">
+<span class="question-number">109</span>
+<span>Question 109</span>
+</div>
+<div class="question-text">Add scalar 28 to matrix. What is output at (0,2)? (clip to 0-255)</div>
+<div class="matrix"><table><tr><td>53</td><td>93</td><td>122</td></tr><tr><td>111</td><td>59</td><td>128</td></tr><tr><td>87</td><td>61</td><td>118</td></tr></table></div><div class="formula">💡 Formula: L' = L + 28, clipped to [0,255]</div>
+<div class="input-group">
+<input type="number" step="any" id="input109" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(109)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback109"></div>
+</div>
+<div class="question" id="q110">
+<div class="question-header">
+<span class="question-number">110</span>
+<span>Question 110</span>
+</div>
+<div class="question-text">Add scalar 42 to matrix. What is output at (0,2)? (clip to 0-255)</div>
+<div class="matrix"><table><tr><td>141</td><td>173</td><td>64</td></tr><tr><td>137</td><td>83</td><td>101</td></tr><tr><td>171</td><td>176</td><td>52</td></tr></table></div><div class="formula">💡 Formula: L' = L + 42, clipped to [0,255]</div>
+<div class="input-group">
+<input type="number" step="any" id="input110" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(110)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback110"></div>
+</div>
+<div class="question" id="q111">
+<div class="question-header">
+<span class="question-number">111</span>
+<span>Question 111</span>
+</div>
+<div class="question-text">Multiply matrix by scalar 2.7. What is output at (1,2)? (clip, round down)</div>
+<div class="matrix"><table><tr><td>59</td><td>54</td><td>66</td></tr><tr><td>39</td><td>37</td><td>72</td></tr><tr><td>83</td><td>83</td><td>88</td></tr></table></div><div class="formula">💡 Formula: L' = L × 2.7, clipped to [0,255]</div>
+<div class="input-group">
+<input type="number" step="any" id="input111" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(111)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback111"></div>
+</div>
+<div class="question" id="q112">
+<div class="question-header">
+<span class="question-number">112</span>
+<span>Question 112</span>
+</div>
+<div class="question-text">Multiply matrix by scalar 2.0. What is output at (2,0)? (clip, round down)</div>
+<div class="matrix"><table><tr><td>81</td><td>29</td><td>41</td></tr><tr><td>38</td><td>85</td><td>100</td></tr><tr><td>94</td><td>51</td><td>30</td></tr></table></div><div class="formula">💡 Formula: L' = L × 2.0, clipped to [0,255]</div>
+<div class="input-group">
+<input type="number" step="any" id="input112" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(112)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback112"></div>
+</div>
+<div class="question" id="q113">
+<div class="question-header">
+<span class="question-number">113</span>
+<span>Question 113</span>
+</div>
+<div class="question-text">Multiply matrix by scalar 2.1. What is output at (1,0)? (clip, round down)</div>
+<div class="matrix"><table><tr><td>60</td><td>80</td><td>84</td></tr><tr><td>95</td><td>50</td><td>80</td></tr><tr><td>58</td><td>53</td><td>25</td></tr></table></div><div class="formula">💡 Formula: L' = L × 2.1, clipped to [0,255]</div>
+<div class="input-group">
+<input type="number" step="any" id="input113" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(113)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback113"></div>
+</div>
+<div class="question" id="q114">
+<div class="question-header">
+<span class="question-number">114</span>
+<span>Question 114</span>
+</div>
+<div class="question-text">Multiply matrix by scalar 2.6. What is output at (2,0)? (clip, round down)</div>
+<div class="matrix"><table><tr><td>32</td><td>86</td><td>76</td></tr><tr><td>77</td><td>79</td><td>64</td></tr><tr><td>24</td><td>85</td><td>84</td></tr></table></div><div class="formula">💡 Formula: L' = L × 2.6, clipped to [0,255]</div>
+<div class="input-group">
+<input type="number" step="any" id="input114" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(114)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback114"></div>
+</div>
+<div class="question" id="q115">
+<div class="question-header">
+<span class="question-number">115</span>
+<span>Question 115</span>
+</div>
+<div class="question-text">Multiply matrix by scalar 1.8. What is output at (0,1)? (clip, round down)</div>
+<div class="matrix"><table><tr><td>80</td><td>34</td><td>96</td></tr><tr><td>24</td><td>51</td><td>37</td></tr><tr><td>34</td><td>83</td><td>49</td></tr></table></div><div class="formula">💡 Formula: L' = L × 1.8, clipped to [0,255]</div>
+<div class="input-group">
+<input type="number" step="any" id="input115" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(115)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback115"></div>
+</div>
+<div class="question" id="q116">
+<div class="question-header">
+<span class="question-number">116</span>
+<span>Question 116</span>
+</div>
+<div class="question-text">Add two matrices. What is output at (0,0)? Matrix A + Matrix B (clip to 0-255)</div>
+<div class="matrix"><table><tr><td>57</td><td>61</td></tr><tr><td>145</td><td>111</td></tr></table></div><br>+<br><div class="matrix"><table><tr><td>46</td><td>112</td></tr><tr><td>61</td><td>38</td></tr></table></div><div class="formula">💡 Formula: C = A + B, clipped</div>
+<div class="input-group">
+<input type="number" step="any" id="input116" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(116)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback116"></div>
+</div>
+<div class="question" id="q117">
+<div class="question-header">
+<span class="question-number">117</span>
+<span>Question 117</span>
+</div>
+<div class="question-text">Add two matrices. What is output at (0,1)? Matrix A + Matrix B (clip to 0-255)</div>
+<div class="matrix"><table><tr><td>118</td><td>111</td></tr><tr><td>54</td><td>71</td></tr></table></div><br>+<br><div class="matrix"><table><tr><td>76</td><td>84</td></tr><tr><td>110</td><td>106</td></tr></table></div><div class="formula">💡 Formula: C = A + B, clipped</div>
+<div class="input-group">
+<input type="number" step="any" id="input117" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(117)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback117"></div>
+</div>
+<div class="question" id="q118">
+<div class="question-header">
+<span class="question-number">118</span>
+<span>Question 118</span>
+</div>
+<div class="question-text">Add two matrices. What is output at (1,1)? Matrix A + Matrix B (clip to 0-255)</div>
+<div class="matrix"><table><tr><td>65</td><td>79</td></tr><tr><td>117</td><td>58</td></tr></table></div><br>+<br><div class="matrix"><table><tr><td>38</td><td>61</td></tr><tr><td>40</td><td>120</td></tr></table></div><div class="formula">💡 Formula: C = A + B, clipped</div>
+<div class="input-group">
+<input type="number" step="any" id="input118" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(118)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback118"></div>
+</div>
+<div class="question" id="q119">
+<div class="question-header">
+<span class="question-number">119</span>
+<span>Question 119</span>
+</div>
+<div class="question-text">Add two matrices. What is output at (1,1)? Matrix A + Matrix B (clip to 0-255)</div>
+<div class="matrix"><table><tr><td>68</td><td>91</td></tr><tr><td>58</td><td>135</td></tr></table></div><br>+<br><div class="matrix"><table><tr><td>108</td><td>71</td></tr><tr><td>73</td><td>106</td></tr></table></div><div class="formula">💡 Formula: C = A + B, clipped</div>
+<div class="input-group">
+<input type="number" step="any" id="input119" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(119)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback119"></div>
+</div>
+<div class="question" id="q120">
+<div class="question-header">
+<span class="question-number">120</span>
+<span>Question 120</span>
+</div>
+<div class="question-text">Add two matrices. What is output at (0,0)? Matrix A + Matrix B (clip to 0-255)</div>
+<div class="matrix"><table><tr><td>114</td><td>150</td></tr><tr><td>67</td><td>55</td></tr></table></div><br>+<br><div class="matrix"><table><tr><td>48</td><td>100</td></tr><tr><td>66</td><td>66</td></tr></table></div><div class="formula">💡 Formula: C = A + B, clipped</div>
+<div class="input-group">
+<input type="number" step="any" id="input120" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(120)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback120"></div>
+</div>
+</div>
+<div class="quiz-section">
+<h2>Non-linear Filters</h2>
+<div class="question" id="q121">
+<div class="question-header">
+<span class="question-number">121</span>
+<span>Question 121</span>
+</div>
+<div class="question-text">Apply 3×3 min filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>202</td><td>54</td><td>243</td><td>232</td></tr><tr><td>42</td><td>105</td><td>177</td><td>193</td></tr><tr><td>134</td><td>147</td><td>105</td><td>52</td></tr><tr><td>79</td><td>191</td><td>237</td><td>187</td></tr></table></div><div class="formula">💡 Output = minimum in 3×3 window</div>
+<div class="input-group">
+<input type="number" step="any" id="input121" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(121)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback121"></div>
+</div>
+<div class="question" id="q122">
+<div class="question-header">
+<span class="question-number">122</span>
+<span>Question 122</span>
+</div>
+<div class="question-text">Apply 3×3 min filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>115</td><td>76</td><td>41</td><td>217</td></tr><tr><td>210</td><td>232</td><td>125</td><td>97</td></tr><tr><td>65</td><td>18</td><td>200</td><td>173</td></tr><tr><td>61</td><td>15</td><td>87</td><td>205</td></tr></table></div><div class="formula">💡 Output = minimum in 3×3 window</div>
+<div class="input-group">
+<input type="number" step="any" id="input122" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(122)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback122"></div>
+</div>
+<div class="question" id="q123">
+<div class="question-header">
+<span class="question-number">123</span>
+<span>Question 123</span>
+</div>
+<div class="question-text">Apply 3×3 min filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>72</td><td>197</td><td>231</td><td>52</td></tr><tr><td>193</td><td>145</td><td>23</td><td>78</td></tr><tr><td>216</td><td>130</td><td>120</td><td>31</td></tr><tr><td>152</td><td>49</td><td>22</td><td>248</td></tr></table></div><div class="formula">💡 Output = minimum in 3×3 window</div>
+<div class="input-group">
+<input type="number" step="any" id="input123" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(123)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback123"></div>
+</div>
+<div class="question" id="q124">
+<div class="question-header">
+<span class="question-number">124</span>
+<span>Question 124</span>
+</div>
+<div class="question-text">Apply 3×3 min filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>69</td><td>112</td><td>92</td><td>232</td></tr><tr><td>131</td><td>79</td><td>185</td><td>122</td></tr><tr><td>214</td><td>214</td><td>110</td><td>128</td></tr><tr><td>70</td><td>64</td><td>92</td><td>58</td></tr></table></div><div class="formula">💡 Output = minimum in 3×3 window</div>
+<div class="input-group">
+<input type="number" step="any" id="input124" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(124)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback124"></div>
+</div>
+<div class="question" id="q125">
+<div class="question-header">
+<span class="question-number">125</span>
+<span>Question 125</span>
+</div>
+<div class="question-text">Apply 3×3 min filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>176</td><td>58</td><td>138</td><td>131</td></tr><tr><td>44</td><td>80</td><td>98</td><td>217</td></tr><tr><td>87</td><td>44</td><td>48</td><td>240</td></tr><tr><td>93</td><td>177</td><td>120</td><td>45</td></tr></table></div><div class="formula">💡 Output = minimum in 3×3 window</div>
+<div class="input-group">
+<input type="number" step="any" id="input125" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(125)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback125"></div>
+</div>
+<div class="question" id="q126">
+<div class="question-header">
+<span class="question-number">126</span>
+<span>Question 126</span>
+</div>
+<div class="question-text">Apply 3×3 max filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>64</td><td>193</td><td>160</td><td>197</td></tr><tr><td>77</td><td>40</td><td>241</td><td>128</td></tr><tr><td>249</td><td>48</td><td>61</td><td>143</td></tr><tr><td>142</td><td>163</td><td>111</td><td>216</td></tr></table></div><div class="formula">💡 Output = maximum in 3×3 window</div>
+<div class="input-group">
+<input type="number" step="any" id="input126" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(126)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback126"></div>
+</div>
+<div class="question" id="q127">
+<div class="question-header">
+<span class="question-number">127</span>
+<span>Question 127</span>
+</div>
+<div class="question-text">Apply 3×3 max filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>162</td><td>78</td><td>155</td><td>226</td></tr><tr><td>138</td><td>230</td><td>189</td><td>167</td></tr><tr><td>79</td><td>213</td><td>249</td><td>36</td></tr><tr><td>62</td><td>214</td><td>110</td><td>193</td></tr></table></div><div class="formula">💡 Output = maximum in 3×3 window</div>
+<div class="input-group">
+<input type="number" step="any" id="input127" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(127)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback127"></div>
+</div>
+<div class="question" id="q128">
+<div class="question-header">
+<span class="question-number">128</span>
+<span>Question 128</span>
+</div>
+<div class="question-text">Apply 3×3 max filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>80</td><td>112</td><td>39</td><td>32</td></tr><tr><td>25</td><td>43</td><td>76</td><td>112</td></tr><tr><td>59</td><td>63</td><td>116</td><td>166</td></tr><tr><td>244</td><td>181</td><td>124</td><td>80</td></tr></table></div><div class="formula">💡 Output = maximum in 3×3 window</div>
+<div class="input-group">
+<input type="number" step="any" id="input128" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(128)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback128"></div>
+</div>
+<div class="question" id="q129">
+<div class="question-header">
+<span class="question-number">129</span>
+<span>Question 129</span>
+</div>
+<div class="question-text">Apply 3×3 max filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>178</td><td>94</td><td>187</td><td>70</td></tr><tr><td>27</td><td>246</td><td>183</td><td>83</td></tr><tr><td>101</td><td>113</td><td>20</td><td>152</td></tr><tr><td>128</td><td>167</td><td>100</td><td>132</td></tr></table></div><div class="formula">💡 Output = maximum in 3×3 window</div>
+<div class="input-group">
+<input type="number" step="any" id="input129" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(129)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback129"></div>
+</div>
+<div class="question" id="q130">
+<div class="question-header">
+<span class="question-number">130</span>
+<span>Question 130</span>
+</div>
+<div class="question-text">Apply 3×3 max filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>207</td><td>98</td><td>68</td><td>52</td></tr><tr><td>143</td><td>80</td><td>185</td><td>70</td></tr><tr><td>106</td><td>125</td><td>55</td><td>71</td></tr><tr><td>184</td><td>216</td><td>47</td><td>15</td></tr></table></div><div class="formula">💡 Output = maximum in 3×3 window</div>
+<div class="input-group">
+<input type="number" step="any" id="input130" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(130)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback130"></div>
+</div>
+<div class="question" id="q131">
+<div class="question-header">
+<span class="question-number">131</span>
+<span>Question 131</span>
+</div>
+<div class="question-text">Apply 3×3 median filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>171</td><td>31</td><td>94</td><td>20</td></tr><tr><td>179</td><td>221</td><td>21</td><td>181</td></tr><tr><td>161</td><td>166</td><td>120</td><td>194</td></tr><tr><td>71</td><td>31</td><td>185</td><td>78</td></tr></table></div><div class="formula">💡 Output = median (middle) in sorted window</div>
+<div class="input-group">
+<input type="number" step="any" id="input131" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(131)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback131"></div>
+</div>
+<div class="question" id="q132">
+<div class="question-header">
+<span class="question-number">132</span>
+<span>Question 132</span>
+</div>
+<div class="question-text">Apply 3×3 median filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>78</td><td>23</td><td>171</td><td>105</td></tr><tr><td>98</td><td>104</td><td>204</td><td>42</td></tr><tr><td>37</td><td>56</td><td>248</td><td>134</td></tr><tr><td>169</td><td>88</td><td>88</td><td>182</td></tr></table></div><div class="formula">💡 Output = median (middle) in sorted window</div>
+<div class="input-group">
+<input type="number" step="any" id="input132" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(132)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback132"></div>
+</div>
+<div class="question" id="q133">
+<div class="question-header">
+<span class="question-number">133</span>
+<span>Question 133</span>
+</div>
+<div class="question-text">Apply 3×3 median filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>124</td><td>54</td><td>28</td><td>128</td></tr><tr><td>144</td><td>204</td><td>160</td><td>124</td></tr><tr><td>174</td><td>184</td><td>250</td><td>151</td></tr><tr><td>174</td><td>71</td><td>58</td><td>230</td></tr></table></div><div class="formula">💡 Output = median (middle) in sorted window</div>
+<div class="input-group">
+<input type="number" step="any" id="input133" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(133)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback133"></div>
+</div>
+<div class="question" id="q134">
+<div class="question-header">
+<span class="question-number">134</span>
+<span>Question 134</span>
+</div>
+<div class="question-text">Apply 3×3 median filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>28</td><td>122</td><td>145</td><td>79</td></tr><tr><td>93</td><td>159</td><td>82</td><td>183</td></tr><tr><td>59</td><td>208</td><td>119</td><td>198</td></tr><tr><td>50</td><td>180</td><td>236</td><td>112</td></tr></table></div><div class="formula">💡 Output = median (middle) in sorted window</div>
+<div class="input-group">
+<input type="number" step="any" id="input134" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(134)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback134"></div>
+</div>
+<div class="question" id="q135">
+<div class="question-header">
+<span class="question-number">135</span>
+<span>Question 135</span>
+</div>
+<div class="question-text">Apply 3×3 median filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>20</td><td>186</td><td>174</td><td>63</td></tr><tr><td>198</td><td>61</td><td>201</td><td>204</td></tr><tr><td>101</td><td>205</td><td>107</td><td>206</td></tr><tr><td>143</td><td>184</td><td>157</td><td>48</td></tr></table></div><div class="formula">💡 Output = median (middle) in sorted window</div>
+<div class="input-group">
+<input type="number" step="any" id="input135" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(135)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback135"></div>
+</div>
+<div class="question" id="q136">
+<div class="question-header">
+<span class="question-number">136</span>
+<span>Question 136</span>
+</div>
+<div class="question-text">Apply 3×3 range filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>194</td><td>122</td><td>48</td><td>51</td></tr><tr><td>102</td><td>114</td><td>99</td><td>145</td></tr><tr><td>154</td><td>197</td><td>94</td><td>24</td></tr><tr><td>62</td><td>173</td><td>158</td><td>117</td></tr></table></div><div class="formula">💡 Output = max - min in window</div>
+<div class="input-group">
+<input type="number" step="any" id="input136" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(136)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback136"></div>
+</div>
+<div class="question" id="q137">
+<div class="question-header">
+<span class="question-number">137</span>
+<span>Question 137</span>
+</div>
+<div class="question-text">Apply 3×3 range filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>167</td><td>134</td><td>122</td><td>58</td></tr><tr><td>75</td><td>200</td><td>235</td><td>144</td></tr><tr><td>152</td><td>21</td><td>183</td><td>174</td></tr><tr><td>15</td><td>31</td><td>69</td><td>189</td></tr></table></div><div class="formula">💡 Output = max - min in window</div>
+<div class="input-group">
+<input type="number" step="any" id="input137" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(137)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback137"></div>
+</div>
+<div class="question" id="q138">
+<div class="question-header">
+<span class="question-number">138</span>
+<span>Question 138</span>
+</div>
+<div class="question-text">Apply 3×3 range filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>248</td><td>207</td><td>32</td><td>38</td></tr><tr><td>119</td><td>191</td><td>35</td><td>58</td></tr><tr><td>50</td><td>114</td><td>35</td><td>163</td></tr><tr><td>101</td><td>97</td><td>18</td><td>220</td></tr></table></div><div class="formula">💡 Output = max - min in window</div>
+<div class="input-group">
+<input type="number" step="any" id="input138" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(138)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback138"></div>
+</div>
+<div class="question" id="q139">
+<div class="question-header">
+<span class="question-number">139</span>
+<span>Question 139</span>
+</div>
+<div class="question-text">Apply 3×3 range filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>108</td><td>243</td><td>150</td><td>156</td></tr><tr><td>70</td><td>152</td><td>195</td><td>229</td></tr><tr><td>85</td><td>19</td><td>115</td><td>94</td></tr><tr><td>250</td><td>220</td><td>147</td><td>31</td></tr></table></div><div class="formula">💡 Output = max - min in window</div>
+<div class="input-group">
+<input type="number" step="any" id="input139" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(139)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback139"></div>
+</div>
+<div class="question" id="q140">
+<div class="question-header">
+<span class="question-number">140</span>
+<span>Question 140</span>
+</div>
+<div class="question-text">Apply 3×3 range filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>243</td><td>168</td><td>237</td><td>119</td></tr><tr><td>245</td><td>169</td><td>73</td><td>143</td></tr><tr><td>162</td><td>244</td><td>184</td><td>197</td></tr><tr><td>107</td><td>243</td><td>21</td><td>234</td></tr></table></div><div class="formula">💡 Output = max - min in window</div>
+<div class="input-group">
+<input type="number" step="any" id="input140" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(140)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback140"></div>
+</div>
+</div>
+<div class="quiz-section">
+<h2>Linear Filters</h2>
+<div class="question" id="q141">
+<div class="question-header">
+<span class="question-number">141</span>
+<span>Question 141</span>
+</div>
+<div class="question-text">Apply 3×3 mean filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>79</td><td>202</td><td>221</td><td>55</td></tr><tr><td>164</td><td>227</td><td>145</td><td>195</td></tr><tr><td>64</td><td>83</td><td>225</td><td>242</td></tr><tr><td>154</td><td>191</td><td>130</td><td>172</td></tr></table></div><div class="formula">💡 Output = sum(window) / 9, rounded</div>
+<div class="input-group">
+<input type="number" step="any" id="input141" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(141)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback141"></div>
+</div>
+<div class="question" id="q142">
+<div class="question-header">
+<span class="question-number">142</span>
+<span>Question 142</span>
+</div>
+<div class="question-text">Apply 3×3 mean filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>77</td><td>67</td><td>207</td><td>84</td></tr><tr><td>99</td><td>111</td><td>125</td><td>207</td></tr><tr><td>237</td><td>180</td><td>125</td><td>136</td></tr><tr><td>111</td><td>155</td><td>186</td><td>159</td></tr></table></div><div class="formula">💡 Output = sum(window) / 9, rounded</div>
+<div class="input-group">
+<input type="number" step="any" id="input142" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(142)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback142"></div>
+</div>
+<div class="question" id="q143">
+<div class="question-header">
+<span class="question-number">143</span>
+<span>Question 143</span>
+</div>
+<div class="question-text">Apply 3×3 mean filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>239</td><td>70</td><td>177</td><td>209</td></tr><tr><td>127</td><td>247</td><td>101</td><td>176</td></tr><tr><td>250</td><td>198</td><td>132</td><td>184</td></tr><tr><td>236</td><td>244</td><td>235</td><td>59</td></tr></table></div><div class="formula">💡 Output = sum(window) / 9, rounded</div>
+<div class="input-group">
+<input type="number" step="any" id="input143" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(143)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback143"></div>
+</div>
+<div class="question" id="q144">
+<div class="question-header">
+<span class="question-number">144</span>
+<span>Question 144</span>
+</div>
+<div class="question-text">Apply 3×3 mean filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>64</td><td>221</td><td>199</td><td>145</td></tr><tr><td>201</td><td>213</td><td>125</td><td>109</td></tr><tr><td>232</td><td>77</td><td>191</td><td>191</td></tr><tr><td>163</td><td>226</td><td>234</td><td>133</td></tr></table></div><div class="formula">💡 Output = sum(window) / 9, rounded</div>
+<div class="input-group">
+<input type="number" step="any" id="input144" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(144)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback144"></div>
+</div>
+<div class="question" id="q145">
+<div class="question-header">
+<span class="question-number">145</span>
+<span>Question 145</span>
+</div>
+<div class="question-text">Apply 3×3 mean filter at center (2,2):</div>
+<div class="matrix"><table><tr><td>51</td><td>85</td><td>169</td><td>104</td></tr><tr><td>214</td><td>215</td><td>194</td><td>239</td></tr><tr><td>192</td><td>229</td><td>183</td><td>121</td></tr><tr><td>112</td><td>178</td><td>122</td><td>249</td></tr></table></div><div class="formula">💡 Output = sum(window) / 9, rounded</div>
+<div class="input-group">
+<input type="number" step="any" id="input145" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(145)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback145"></div>
+</div>
+<div class="question" id="q146">
+<div class="question-header">
+<span class="question-number">146</span>
+<span>Question 146</span>
+</div>
+<div class="question-text">What coefficient value in each cell of 9×9 mean filter? (4 d.p.)</div>
+<div class="formula">💡 Formula: 1 / 9²</div>
+<div class="input-group">
+<input type="number" step="any" id="input146" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(146)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback146"></div>
+</div>
+<div class="question" id="q147">
+<div class="question-header">
+<span class="question-number">147</span>
+<span>Question 147</span>
+</div>
+<div class="question-text">What coefficient value in each cell of 9×9 mean filter? (4 d.p.)</div>
+<div class="formula">💡 Formula: 1 / 9²</div>
+<div class="input-group">
+<input type="number" step="any" id="input147" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(147)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback147"></div>
+</div>
+<div class="question" id="q148">
+<div class="question-header">
+<span class="question-number">148</span>
+<span>Question 148</span>
+</div>
+<div class="question-text">What coefficient value in each cell of 5×5 mean filter? (4 d.p.)</div>
+<div class="formula">💡 Formula: 1 / 5²</div>
+<div class="input-group">
+<input type="number" step="any" id="input148" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(148)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback148"></div>
+</div>
+<div class="question" id="q149">
+<div class="question-header">
+<span class="question-number">149</span>
+<span>Question 149</span>
+</div>
+<div class="question-text">What coefficient value in each cell of 5×5 mean filter? (4 d.p.)</div>
+<div class="formula">💡 Formula: 1 / 5²</div>
+<div class="input-group">
+<input type="number" step="any" id="input149" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(149)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback149"></div>
+</div>
+<div class="question" id="q150">
+<div class="question-header">
+<span class="question-number">150</span>
+<span>Question 150</span>
+</div>
+<div class="question-text">What coefficient value in each cell of 3×3 mean filter? (4 d.p.)</div>
+<div class="formula">💡 Formula: 1 / 3²</div>
+<div class="input-group">
+<input type="number" step="any" id="input150" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(150)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback150"></div>
+</div>
+<div class="question" id="q151">
+<div class="question-header">
+<span class="question-number">151</span>
+<span>Question 151</span>
+</div>
+<div class="question-text">Apply horizontal edge kernel [-1, 0, 1] to middle row. Output = ?</div>
+<div class="matrix"><table><tr><td>103</td><td>104</td><td>111</td></tr><tr><td>78</td><td>182</td><td>107</td></tr><tr><td>161</td><td>199</td><td>166</td></tr></table></div><div class="formula">💡 Output = (right - left) on middle row</div>
+<div class="input-group">
+<input type="number" step="any" id="input151" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(151)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback151"></div>
+</div>
+<div class="question" id="q152">
+<div class="question-header">
+<span class="question-number">152</span>
+<span>Question 152</span>
+</div>
+<div class="question-text">Apply horizontal edge kernel [-1, 0, 1] to middle row. Output = ?</div>
+<div class="matrix"><table><tr><td>42</td><td>156</td><td>134</td></tr><tr><td>88</td><td>173</td><td>169</td></tr><tr><td>185</td><td>89</td><td>103</td></tr></table></div><div class="formula">💡 Output = (right - left) on middle row</div>
+<div class="input-group">
+<input type="number" step="any" id="input152" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(152)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback152"></div>
+</div>
+<div class="question" id="q153">
+<div class="question-header">
+<span class="question-number">153</span>
+<span>Question 153</span>
+</div>
+<div class="question-text">Apply horizontal edge kernel [-1, 0, 1] to middle row. Output = ?</div>
+<div class="matrix"><table><tr><td>105</td><td>139</td><td>62</td></tr><tr><td>72</td><td>152</td><td>162</td></tr><tr><td>135</td><td>30</td><td>44</td></tr></table></div><div class="formula">💡 Output = (right - left) on middle row</div>
+<div class="input-group">
+<input type="number" step="any" id="input153" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(153)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback153"></div>
+</div>
+<div class="question" id="q154">
+<div class="question-header">
+<span class="question-number">154</span>
+<span>Question 154</span>
+</div>
+<div class="question-text">Apply horizontal edge kernel [-1, 0, 1] to middle row. Output = ?</div>
+<div class="matrix"><table><tr><td>85</td><td>191</td><td>107</td></tr><tr><td>186</td><td>99</td><td>191</td></tr><tr><td>101</td><td>175</td><td>136</td></tr></table></div><div class="formula">💡 Output = (right - left) on middle row</div>
+<div class="input-group">
+<input type="number" step="any" id="input154" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(154)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback154"></div>
+</div>
+<div class="question" id="q155">
+<div class="question-header">
+<span class="question-number">155</span>
+<span>Question 155</span>
+</div>
+<div class="question-text">Apply horizontal edge kernel [-1, 0, 1] to middle row. Output = ?</div>
+<div class="matrix"><table><tr><td>36</td><td>43</td><td>187</td></tr><tr><td>107</td><td>81</td><td>144</td></tr><tr><td>96</td><td>185</td><td>95</td></tr></table></div><div class="formula">💡 Output = (right - left) on middle row</div>
+<div class="input-group">
+<input type="number" step="any" id="input155" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(155)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback155"></div>
+</div>
+</div>
+<div class="quiz-section">
+<h2>Edge Detection</h2>
+<div class="question" id="q156">
+<div class="question-header">
+<span class="question-number">156</span>
+<span>Question 156</span>
+</div>
+<div class="question-text">Roberts Cross magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>120</td><td>240</td></tr><tr><td>143</td><td>233</td></tr></table></div><div class="formula">💡 Gx = BR-TL, Gy = BL-TR, mag = √(Gx²+Gy²)</div>
+<div class="input-group">
+<input type="number" step="any" id="input156" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(156)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback156"></div>
+</div>
+<div class="question" id="q157">
+<div class="question-header">
+<span class="question-number">157</span>
+<span>Question 157</span>
+</div>
+<div class="question-text">Roberts Cross magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>165</td><td>223</td></tr><tr><td>134</td><td>249</td></tr></table></div><div class="formula">💡 Gx = BR-TL, Gy = BL-TR, mag = √(Gx²+Gy²)</div>
+<div class="input-group">
+<input type="number" step="any" id="input157" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(157)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback157"></div>
+</div>
+<div class="question" id="q158">
+<div class="question-header">
+<span class="question-number">158</span>
+<span>Question 158</span>
+</div>
+<div class="question-text">Roberts Cross magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>155</td><td>171</td></tr><tr><td>145</td><td>205</td></tr></table></div><div class="formula">💡 Gx = BR-TL, Gy = BL-TR, mag = √(Gx²+Gy²)</div>
+<div class="input-group">
+<input type="number" step="any" id="input158" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(158)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback158"></div>
+</div>
+<div class="question" id="q159">
+<div class="question-header">
+<span class="question-number">159</span>
+<span>Question 159</span>
+</div>
+<div class="question-text">Roberts Cross magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>140</td><td>175</td></tr><tr><td>92</td><td>207</td></tr></table></div><div class="formula">💡 Gx = BR-TL, Gy = BL-TR, mag = √(Gx²+Gy²)</div>
+<div class="input-group">
+<input type="number" step="any" id="input159" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(159)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback159"></div>
+</div>
+<div class="question" id="q160">
+<div class="question-header">
+<span class="question-number">160</span>
+<span>Question 160</span>
+</div>
+<div class="question-text">Roberts Cross magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>111</td><td>204</td></tr><tr><td>134</td><td>220</td></tr></table></div><div class="formula">💡 Gx = BR-TL, Gy = BL-TR, mag = √(Gx²+Gy²)</div>
+<div class="input-group">
+<input type="number" step="any" id="input160" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(160)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback160"></div>
+</div>
+<div class="question" id="q161">
+<div class="question-header">
+<span class="question-number">161</span>
+<span>Question 161</span>
+</div>
+<div class="question-text">Prewitt magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>173</td><td>81</td><td>101</td></tr><tr><td>152</td><td>55</td><td>191</td></tr><tr><td>151</td><td>33</td><td>142</td></tr></table></div><div class="formula">💡 Gx = sum(right col) - sum(left col), Gy = sum(bottom) - sum(top)</div>
+<div class="input-group">
+<input type="number" step="any" id="input161" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(161)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback161"></div>
+</div>
+<div class="question" id="q162">
+<div class="question-header">
+<span class="question-number">162</span>
+<span>Question 162</span>
+</div>
+<div class="question-text">Prewitt magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>171</td><td>137</td><td>61</td></tr><tr><td>132</td><td>126</td><td>114</td></tr><tr><td>172</td><td>85</td><td>164</td></tr></table></div><div class="formula">💡 Gx = sum(right col) - sum(left col), Gy = sum(bottom) - sum(top)</div>
+<div class="input-group">
+<input type="number" step="any" id="input162" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(162)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback162"></div>
+</div>
+<div class="question" id="q163">
+<div class="question-header">
+<span class="question-number">163</span>
+<span>Question 163</span>
+</div>
+<div class="question-text">Prewitt magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>90</td><td>53</td><td>138</td></tr><tr><td>125</td><td>148</td><td>51</td></tr><tr><td>152</td><td>78</td><td>134</td></tr></table></div><div class="formula">💡 Gx = sum(right col) - sum(left col), Gy = sum(bottom) - sum(top)</div>
+<div class="input-group">
+<input type="number" step="any" id="input163" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(163)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback163"></div>
+</div>
+<div class="question" id="q164">
+<div class="question-header">
+<span class="question-number">164</span>
+<span>Question 164</span>
+</div>
+<div class="question-text">Prewitt magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>79</td><td>60</td><td>89</td></tr><tr><td>124</td><td>32</td><td>164</td></tr><tr><td>115</td><td>51</td><td>70</td></tr></table></div><div class="formula">💡 Gx = sum(right col) - sum(left col), Gy = sum(bottom) - sum(top)</div>
+<div class="input-group">
+<input type="number" step="any" id="input164" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(164)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback164"></div>
+</div>
+<div class="question" id="q165">
+<div class="question-header">
+<span class="question-number">165</span>
+<span>Question 165</span>
+</div>
+<div class="question-text">Prewitt magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>126</td><td>102</td><td>164</td></tr><tr><td>57</td><td>105</td><td>56</td></tr><tr><td>176</td><td>55</td><td>62</td></tr></table></div><div class="formula">💡 Gx = sum(right col) - sum(left col), Gy = sum(bottom) - sum(top)</div>
+<div class="input-group">
+<input type="number" step="any" id="input165" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(165)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback165"></div>
+</div>
+<div class="question" id="q166">
+<div class="question-header">
+<span class="question-number">166</span>
+<span>Question 166</span>
+</div>
+<div class="question-text">Sobel magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>136</td><td>151</td><td>114</td></tr><tr><td>163</td><td>182</td><td>144</td></tr><tr><td>104</td><td>171</td><td>135</td></tr></table></div><div class="formula">💡 Like Prewitt but center weighted ×2</div>
+<div class="input-group">
+<input type="number" step="any" id="input166" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(166)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback166"></div>
+</div>
+<div class="question" id="q167">
+<div class="question-header">
+<span class="question-number">167</span>
+<span>Question 167</span>
+</div>
+<div class="question-text">Sobel magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>69</td><td>129</td><td>98</td></tr><tr><td>196</td><td>132</td><td>56</td></tr><tr><td>154</td><td>169</td><td>102</td></tr></table></div><div class="formula">💡 Like Prewitt but center weighted ×2</div>
+<div class="input-group">
+<input type="number" step="any" id="input167" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(167)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback167"></div>
+</div>
+<div class="question" id="q168">
+<div class="question-header">
+<span class="question-number">168</span>
+<span>Question 168</span>
+</div>
+<div class="question-text">Sobel magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>186</td><td>173</td><td>109</td></tr><tr><td>140</td><td>146</td><td>124</td></tr><tr><td>137</td><td>151</td><td>146</td></tr></table></div><div class="formula">💡 Like Prewitt but center weighted ×2</div>
+<div class="input-group">
+<input type="number" step="any" id="input168" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(168)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback168"></div>
+</div>
+<div class="question" id="q169">
+<div class="question-header">
+<span class="question-number">169</span>
+<span>Question 169</span>
+</div>
+<div class="question-text">Sobel magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>144</td><td>37</td><td>93</td></tr><tr><td>32</td><td>105</td><td>191</td></tr><tr><td>175</td><td>81</td><td>108</td></tr></table></div><div class="formula">💡 Like Prewitt but center weighted ×2</div>
+<div class="input-group">
+<input type="number" step="any" id="input169" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(169)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback169"></div>
+</div>
+<div class="question" id="q170">
+<div class="question-header">
+<span class="question-number">170</span>
+<span>Question 170</span>
+</div>
+<div class="question-text">Sobel magnitude (nearest integer):</div>
+<div class="matrix"><table><tr><td>40</td><td>177</td><td>133</td></tr><tr><td>185</td><td>57</td><td>162</td></tr><tr><td>92</td><td>98</td><td>115</td></tr></table></div><div class="formula">💡 Like Prewitt but center weighted ×2</div>
+<div class="input-group">
+<input type="number" step="any" id="input170" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(170)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback170"></div>
+</div>
+<div class="question" id="q171">
+<div class="question-header">
+<span class="question-number">171</span>
+<span>Question 171</span>
+</div>
+<div class="question-text">Edge gradient direction in degrees for Gx=-44, Gy=50? (1 d.p.)</div>
+<div class="formula">💡 Formula: atan2(Gy, Gx) in degrees</div>
+<div class="input-group">
+<input type="number" step="any" id="input171" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(171)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback171"></div>
+</div>
+<div class="question" id="q172">
+<div class="question-header">
+<span class="question-number">172</span>
+<span>Question 172</span>
+</div>
+<div class="question-text">Edge gradient direction in degrees for Gx=-94, Gy=-1? (1 d.p.)</div>
+<div class="formula">💡 Formula: atan2(Gy, Gx) in degrees</div>
+<div class="input-group">
+<input type="number" step="any" id="input172" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(172)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback172"></div>
+</div>
+<div class="question" id="q173">
+<div class="question-header">
+<span class="question-number">173</span>
+<span>Question 173</span>
+</div>
+<div class="question-text">Edge gradient direction in degrees for Gx=70, Gy=-13? (1 d.p.)</div>
+<div class="formula">💡 Formula: atan2(Gy, Gx) in degrees</div>
+<div class="input-group">
+<input type="number" step="any" id="input173" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(173)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback173"></div>
+</div>
+<div class="question" id="q174">
+<div class="question-header">
+<span class="question-number">174</span>
+<span>Question 174</span>
+</div>
+<div class="question-text">Edge gradient direction in degrees for Gx=18, Gy=-64? (1 d.p.)</div>
+<div class="formula">💡 Formula: atan2(Gy, Gx) in degrees</div>
+<div class="input-group">
+<input type="number" step="any" id="input174" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(174)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback174"></div>
+</div>
+<div class="question" id="q175">
+<div class="question-header">
+<span class="question-number">175</span>
+<span>Question 175</span>
+</div>
+<div class="question-text">Edge gradient direction in degrees for Gx=40, Gy=-53? (1 d.p.)</div>
+<div class="formula">💡 Formula: atan2(Gy, Gx) in degrees</div>
+<div class="input-group">
+<input type="number" step="any" id="input175" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(175)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback175"></div>
+</div>
+</div>
+<div class="quiz-section">
+<h2>Geometric Transforms</h2>
+<div class="question" id="q176">
+<div class="question-header">
+<span class="question-number">176</span>
+<span>Question 176</span>
+</div>
+<div class="question-text">Apply transpose to matrix. Value at (2,0)?</div>
+<div class="matrix"><table><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td><td>9</td></tr></table></div><div class="formula">💡 Transform: transpose</div>
+<div class="input-group">
+<input type="number" step="any" id="input176" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(176)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback176"></div>
+</div>
+<div class="question" id="q177">
+<div class="question-header">
+<span class="question-number">177</span>
+<span>Question 177</span>
+</div>
+<div class="question-text">Apply transpose to matrix. Value at (1,1)?</div>
+<div class="matrix"><table><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td><td>9</td></tr></table></div><div class="formula">💡 Transform: transpose</div>
+<div class="input-group">
+<input type="number" step="any" id="input177" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(177)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback177"></div>
+</div>
+<div class="question" id="q178">
+<div class="question-header">
+<span class="question-number">178</span>
+<span>Question 178</span>
+</div>
+<div class="question-text">Apply flip left-right to matrix. Value at (1,1)?</div>
+<div class="matrix"><table><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td><td>9</td></tr></table></div><div class="formula">💡 Transform: flip left-right</div>
+<div class="input-group">
+<input type="number" step="any" id="input178" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(178)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback178"></div>
+</div>
+<div class="question" id="q179">
+<div class="question-header">
+<span class="question-number">179</span>
+<span>Question 179</span>
+</div>
+<div class="question-text">Apply flip left-right to matrix. Value at (2,0)?</div>
+<div class="matrix"><table><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td><td>9</td></tr></table></div><div class="formula">💡 Transform: flip left-right</div>
+<div class="input-group">
+<input type="number" step="any" id="input179" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(179)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback179"></div>
+</div>
+<div class="question" id="q180">
+<div class="question-header">
+<span class="question-number">180</span>
+<span>Question 180</span>
+</div>
+<div class="question-text">Apply transpose to matrix. Value at (2,2)?</div>
+<div class="matrix"><table><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td><td>9</td></tr></table></div><div class="formula">💡 Transform: transpose</div>
+<div class="input-group">
+<input type="number" step="any" id="input180" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(180)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback180"></div>
+</div>
+<div class="question" id="q181">
+<div class="question-header">
+<span class="question-number">181</span>
+<span>Question 181</span>
+</div>
+<div class="question-text">Apply flip up-down to matrix. Value at (2,2)?</div>
+<div class="matrix"><table><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td><td>9</td></tr></table></div><div class="formula">💡 Transform: flip up-down</div>
+<div class="input-group">
+<input type="number" step="any" id="input181" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(181)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback181"></div>
+</div>
+<div class="question" id="q182">
+<div class="question-header">
+<span class="question-number">182</span>
+<span>Question 182</span>
+</div>
+<div class="question-text">Apply rotate +90° to matrix. Value at (0,2)?</div>
+<div class="matrix"><table><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td><td>9</td></tr></table></div><div class="formula">💡 Transform: rotate +90°</div>
+<div class="input-group">
+<input type="number" step="any" id="input182" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(182)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback182"></div>
+</div>
+<div class="question" id="q183">
+<div class="question-header">
+<span class="question-number">183</span>
+<span>Question 183</span>
+</div>
+<div class="question-text">Apply rotate +90° to matrix. Value at (2,2)?</div>
+<div class="matrix"><table><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td><td>9</td></tr></table></div><div class="formula">💡 Transform: rotate +90°</div>
+<div class="input-group">
+<input type="number" step="any" id="input183" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(183)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback183"></div>
+</div>
+<div class="question" id="q184">
+<div class="question-header">
+<span class="question-number">184</span>
+<span>Question 184</span>
+</div>
+<div class="question-text">Apply rotate +90° to matrix. Value at (0,2)?</div>
+<div class="matrix"><table><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td><td>9</td></tr></table></div><div class="formula">💡 Transform: rotate +90°</div>
+<div class="input-group">
+<input type="number" step="any" id="input184" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(184)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback184"></div>
+</div>
+<div class="question" id="q185">
+<div class="question-header">
+<span class="question-number">185</span>
+<span>Question 185</span>
+</div>
+<div class="question-text">Apply flip left-right to matrix. Value at (1,1)?</div>
+<div class="matrix"><table><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td><td>9</td></tr></table></div><div class="formula">💡 Transform: flip left-right</div>
+<div class="input-group">
+<input type="number" step="any" id="input185" placeholder="Enter answer">
+<button class="submit-btn" onclick="checkAnswer(185)">Check Answer</button>
+</div>
+<div class="feedback" id="feedback185"></div>
+</div>
+</div>
+
+        </div>
+
+        <div class="score-panel">
+            <h2>📊 Your Score</h2>
+            <div class="score-display">
+                <div class="score-percentage" id="scorePercentage">0%</div>
+                <div class="score-fraction" id="scoreFraction">0 / 185</div>
+            </div>
+            <div class="score-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Correct:</span>
+                    <span class="stat-value correct" id="correctCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Incorrect:</span>
+                    <span class="stat-value incorrect" id="incorrectCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Unanswered:</span>
+                    <span class="stat-value" id="unansweredCount">185</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Answer key
+        const answers = {
+  "1": [
+    5
+  ],
+  "2": [
+    3
+  ],
+  "3": [
+    66
+  ],
+  "4": [
+    5
+  ],
+  "5": [
+    5
+  ],
+  "6": [
+    61
+  ],
+  "7": [
+    3
+  ],
+  "8": [
+    5
+  ],
+  "9": [
+    89
+  ],
+  "10": [
+    3
+  ],
+  "11": [
+    4
+  ],
+  "12": [
+    193
+  ],
+  "13": [
+    6
+  ],
+  "14": [
+    6
+  ],
+  "15": [
+    145
+  ],
+  "16": [
+    13
+  ],
+  "17": [
+    10
+  ],
+  "18": [
+    2
+  ],
+  "19": [
+    936
+  ],
+  "20": [
+    1776
+  ],
+  "21": [
+    22097
+  ],
+  "22": [
+    15840
+  ],
+  "23": [
+    23157
+  ],
+  "24": [
+    54312
+  ],
+  "25": [
+    124658
+  ],
+  "26": [
+    113212
+  ],
+  "27": [
+    35604
+  ],
+  "28": [
+    52392
+  ],
+  "29": [
+    37422
+  ],
+  "30": [
+    117564
+  ],
+  "31": [
+    127428
+  ],
+  "32": [
+    49728
+  ],
+  "33": [
+    16384
+  ],
+  "34": [
+    2048
+  ],
+  "35": [
+    262144
+  ],
+  "36": [
+    356
+  ],
+  "37": [
+    231
+  ],
+  "38": [
+    333
+  ],
+  "39": [
+    422
+  ],
+  "40": [
+    304
+  ],
+  "41": [
+    114
+  ],
+  "42": [
+    45
+  ],
+  "43": [
+    50
+  ],
+  "44": [
+    39
+  ],
+  "45": [
+    44
+  ],
+  "46": [
+    205.08
+  ],
+  "47": [
+    223.23
+  ],
+  "48": [
+    213.26
+  ],
+  "49": [
+    211.38
+  ],
+  "50": [
+    170.43
+  ],
+  "51": [
+    104.44
+  ],
+  "52": [
+    126.44
+  ],
+  "53": [
+    123.56
+  ],
+  "54": [
+    125.56
+  ],
+  "55": [
+    141.56
+  ],
+  "56": [
+    135
+  ],
+  "57": [
+    126
+  ],
+  "58": [
+    167
+  ],
+  "59": [
+    137
+  ],
+  "60": [
+    162
+  ],
+  "61": [
+    0.76
+  ],
+  "62": [
+    0.74
+  ],
+  "63": [
+    0.74
+  ],
+  "64": [
+    0.76
+  ],
+  "65": [
+    0.79
+  ],
+  "66": [
+    0.8
+  ],
+  "67": [
+    0.86
+  ],
+  "68": [
+    0.79
+  ],
+  "69": [
+    0.76
+  ],
+  "70": [
+    0.91
+  ],
+  "71": [
+    116
+  ],
+  "72": [
+    142
+  ],
+  "73": [
+    136
+  ],
+  "74": [
+    155
+  ],
+  "75": [
+    166
+  ],
+  "76": [
+    54
+  ],
+  "77": [
+    57
+  ],
+  "78": [
+    65
+  ],
+  "79": [
+    48
+  ],
+  "80": [
+    58
+  ],
+  "81": [
+    123
+  ],
+  "82": [
+    122
+  ],
+  "83": [
+    132
+  ],
+  "84": [
+    111
+  ],
+  "85": [
+    106
+  ],
+  "86": [
+    109
+  ],
+  "87": [
+    128
+  ],
+  "88": [
+    121
+  ],
+  "89": [
+    132
+  ],
+  "90": [
+    122
+  ],
+  "91": [
+    0
+  ],
+  "92": [
+    0
+  ],
+  "93": [
+    0
+  ],
+  "94": [
+    1
+  ],
+  "95": [
+    0
+  ],
+  "96": [
+    1
+  ],
+  "97": [
+    0
+  ],
+  "98": [
+    0
+  ],
+  "99": [
+    1
+  ],
+  "100": [
+    1
+  ],
+  "101": [
+    0
+  ],
+  "102": [
+    0
+  ],
+  "103": [
+    1
+  ],
+  "104": [
+    0
+  ],
+  "105": [
+    0
+  ],
+  "106": [
+    183
+  ],
+  "107": [
+    206
+  ],
+  "108": [
+    202
+  ],
+  "109": [
+    150
+  ],
+  "110": [
+    106
+  ],
+  "111": [
+    194
+  ],
+  "112": [
+    188
+  ],
+  "113": [
+    199
+  ],
+  "114": [
+    62
+  ],
+  "115": [
+    61
+  ],
+  "116": [
+    103
+  ],
+  "117": [
+    195
+  ],
+  "118": [
+    178
+  ],
+  "119": [
+    241
+  ],
+  "120": [
+    162
+  ],
+  "121": [
+    52
+  ],
+  "122": [
+    15
+  ],
+  "123": [
+    22
+  ],
+  "124": [
+    58
+  ],
+  "125": [
+    44
+  ],
+  "126": [
+    241
+  ],
+  "127": [
+    249
+  ],
+  "128": [
+    181
+  ],
+  "129": [
+    246
+  ],
+  "130": [
+    216
+  ],
+  "131": [
+    166
+  ],
+  "132": [
+    104
+  ],
+  "133": [
+    160
+  ],
+  "134": [
+    180
+  ],
+  "135": [
+    184
+  ],
+  "136": [
+    173
+  ],
+  "137": [
+    214
+  ],
+  "138": [
+    202
+  ],
+  "139": [
+    210
+  ],
+  "140": [
+    223
+  ],
+  "141": [
+    179
+  ],
+  "142": [
+    154
+  ],
+  "143": [
+    175
+  ],
+  "144": [
+    167
+  ],
+  "145": [
+    192
+  ],
+  "146": [
+    0.0123
+  ],
+  "147": [
+    0.0123
+  ],
+  "148": [
+    0.04
+  ],
+  "149": [
+    0.04
+  ],
+  "150": [
+    0.1111
+  ],
+  "151": [
+    29
+  ],
+  "152": [
+    81
+  ],
+  "153": [
+    90
+  ],
+  "154": [
+    5
+  ],
+  "155": [
+    37
+  ],
+  "156": [
+    149
+  ],
+  "157": [
+    122
+  ],
+  "158": [
+    56
+  ],
+  "159": [
+    107
+  ],
+  "160": [
+    130
+  ],
+  "161": [
+    51
+  ],
+  "162": [
+    146
+  ],
+  "163": [
+    94
+  ],
+  "164": [
+    9
+  ],
+  "165": [
+    125
+  ],
+  "166": [
+    41
+  ],
+  "167": [
+    347
+  ],
+  "168": [
+    115
+  ],
+  "169": [
+    241
+  ],
+  "170": [
+    142
+  ],
+  "171": [
+    131.3
+  ],
+  "172": [
+    -179.4
+  ],
+  "173": [
+    -10.5
+  ],
+  "174": [
+    -74.3
+  ],
+  "175": [
+    -53.0
+  ],
+  "176": [
+    3
+  ],
+  "177": [
+    5
+  ],
+  "178": [
+    5
+  ],
+  "179": [
+    9
+  ],
+  "180": [
+    9
+  ],
+  "181": [
+    3
+  ],
+  "182": [
+    1
+  ],
+  "183": [
+    3
+  ],
+  "184": [
+    1
+  ],
+  "185": [
+    5
+  ]
+};
+
+        // Track answered questions
+        let answeredQuestions = new Set();
+        let correctAnswers = new Set();
+
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // Check answer function
+        function checkAnswer(questionId) {
+            const input = document.getElementById(`input${questionId}`);
+            const feedback = document.getElementById(`feedback${questionId}`);
+            const question = document.getElementById(`q${questionId}`);
+            const userAnswer = input.value.trim();
+
+            if (!userAnswer) {
+                return;
+            }
+
+            const correctAnswer = answers[questionId.toString()][0];
+            const tolerance = 0.02; // Allow small rounding differences
+
+            let isCorrect = false;
+
+            // Check if numeric comparison needed
+            if (!isNaN(userAnswer) && !isNaN(correctAnswer)) {
+                const userNum = parseFloat(userAnswer);
+                const correctNum = parseFloat(correctAnswer);
+                isCorrect = Math.abs(userNum - correctNum) <= tolerance;
+            } else {
+                isCorrect = userAnswer.toLowerCase() === correctAnswer.toString().toLowerCase();
+            }
+
+            // Update tracking
+            answeredQuestions.add(questionId);
+
+            if (isCorrect) {
+                correctAnswers.add(questionId);
+                question.classList.remove('incorrect');
+                question.classList.add('correct');
+                feedback.classList.remove('incorrect');
+                feedback.classList.add('correct', 'show');
+                feedback.innerHTML = '<span class="feedback-icon">✅</span><span>Correct!</span>';
+            } else {
+                correctAnswers.delete(questionId);
+                question.classList.remove('correct');
+                question.classList.add('incorrect');
+                feedback.classList.remove('correct');
+                feedback.classList.add('incorrect', 'show');
+                feedback.innerHTML = `
+                    <div>
+                        <div><span class="feedback-icon">❌</span><span>Incorrect</span></div>
+                        <div class="correct-answer">Correct answer: ${correctAnswer}</div>
+                    </div>
+                `;
+            }
+
+            updateScore();
+        }
+
+        // Update score display
+        function updateScore() {
+            const totalQuestions = Object.keys(answers).length;
+            const correct = correctAnswers.size;
+            const incorrect = answeredQuestions.size - correct;
+            const unanswered = totalQuestions - answeredQuestions.size;
+            const percentage = answeredQuestions.size > 0 ? Math.round((correct / answeredQuestions.size) * 100) : 0;
+
+            document.getElementById('scorePercentage').textContent = percentage + '%';
+            document.getElementById('scoreFraction').textContent = `${correct} / ${totalQuestions}`;
+            document.getElementById('correctCount').textContent = correct;
+            document.getElementById('incorrectCount').textContent = incorrect;
+            document.getElementById('unansweredCount').textContent = unanswered;
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.target.type === 'number') {
+                const questionId = parseInt(e.target.id.replace('input', ''));
+                checkAnswer(questionId);
+            }
+        });
+    </script>
+</body>
+</html>
